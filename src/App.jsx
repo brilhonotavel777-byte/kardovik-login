@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { canAccessSystem } from "./lib/access.js";
 import { sendEmailOtp, verifyEmailOtp, getCurrentSession, signOutCurrentUser } from "./lib/auth.js";
 import { getOrCreateUserProfile, ensureUserHasClinic } from "./lib/supabase.js";
+import Brand from "./components/Brand.jsx";
 import LoginStep from "./components/LoginStep.jsx";
 import OtpStep from "./components/OtpStep.jsx";
 import AccessSuccess from "./components/AccessSuccess.jsx";
@@ -160,11 +161,7 @@ export default function App() {
               transition: "opacity 0.45s ease, transform 0.45s ease",
             }}
           >
-            <img
-              src="/logo-kardovik.png"
-              alt="Kardovik"
-              style={{ height: "160px", maxWidth: "100%", objectFit: "contain", display: "block", userSelect: "none", pointerEvents: "none" }}
-            />
+            <Brand size="lg" />
           </div>
           <p style={{ fontSize: "14px", color: "#cbd5e1", margin: 0 }}>Carregando...</p>
         </div>
@@ -222,11 +219,7 @@ export default function App() {
             transition: "opacity 0.45s ease, transform 0.45s ease",
           }}
         >
-          <img
-            src="/logo-kardovik.png"
-            alt="Kardovik"
-            style={{ height: "160px", maxWidth: "100%", objectFit: "contain", display: "block", userSelect: "none", pointerEvents: "none" }}
-          />
+          <Brand size="lg" />
         </div>
 
         {currentStep === "login" && (

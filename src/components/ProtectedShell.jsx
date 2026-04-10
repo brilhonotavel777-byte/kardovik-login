@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Brand from "./Brand.jsx";
 
 const ROLE_LABELS = {
   owner: "Proprietário",
@@ -61,19 +62,13 @@ export default function ProtectedShell({ profile, session, clinic, onLogout }) {
             justifyContent: "space-between",
           }}
         >
-          <span
+          <Brand
+            size="sm"
             style={{
-              fontSize: "20px",
-              fontWeight: "700",
-              color: "#0f172a",
-              letterSpacing: "-0.5px",
-              userSelect: "none",
               opacity: visible ? 1 : 0,
               transition: "opacity 0.4s ease",
             }}
-          >
-            Kardovik
-          </span>
+          />
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div
