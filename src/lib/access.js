@@ -14,7 +14,8 @@ export function canAccessSystem(profile) {
 
   if (status !== "active") return false;
   if (billing_status !== "paid") return false;
-  if (access_expires_at && new Date(access_expires_at) < new Date()) return false;
+  if (!access_expires_at) return false;
+  if (new Date(access_expires_at) < new Date()) return false;
 
   return true;
 }

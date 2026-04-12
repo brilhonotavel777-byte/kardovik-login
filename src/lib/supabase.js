@@ -8,6 +8,29 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ── Usuários ─────────────────────────────────────────────────
 
 /**
+ * Busca o perfil comercial do usuário por email.
+ * Fonte soberana de verdade: tabela `usuarios`, preenchida pelo webhook Hotmart.
+ * Retorna null se não encontrado ou se o email for inválido.
+ */
+export async function fetchUserProfileByEmail(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if (!normalizedEmail) return null;
+
+  const { data, error } = await supabase
+    .from("usuarios")
+    .select("*")
+    .eq("email", normalizedEmail)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[Kardovik] fetchUserProfileByEmail:", error.message);
+    return null;
+  }
+
+  return data ?? null;
+}
+
+/**
  * Busca o perfil do usuário na tabela `usuarios`.
  * Retorna null silenciosamente quando não encontrado (PGRST116).
  */
