@@ -30,10 +30,17 @@ create index if not exists usuarios_clinica_id_idx on public.usuarios (clinica_i
 alter table public.clinicas enable row level security;
 
 -- Usuários autenticados podem ler clínicas (filtragem na aplicação)
-create policy "Authenticated users can read clinics"
+create policy "Authenticated users can read own clinic"
   on public.clinicas for select
   to authenticated
-  using (true);
+  using (
+    exists (
+      select 1
+      from public.usuarios u
+      where u.id = auth.uid()
+        and u.clinica_id = clinicas.id
+    )
+  );
 
 -- Usuários autenticados podem criar clínicas (primeiro acesso)
 create policy "Authenticated users can create clinics"

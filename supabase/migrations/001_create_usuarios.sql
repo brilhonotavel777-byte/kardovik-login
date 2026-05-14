@@ -31,7 +31,8 @@ create table if not exists public.usuarios (
   hotmart_subscriber_code  text,
 
   -- Expiração do acesso
-  -- null = sem expiração definida (ex: enquanto pago recorrentemente)
+  -- NULL = acesso não liberado até que o webhook defina uma data válida.
+  -- O sistema só libera acesso quando access_expires_at contém uma data futura.
   access_expires_at  timestamptz,
 
   created_at  timestamptz not null default now(),

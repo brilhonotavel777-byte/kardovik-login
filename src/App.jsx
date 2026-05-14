@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { canAccessSystem } from "./lib/access.js";
 import { sendEmailOtp, verifyEmailOtp, getCurrentSession, signOutCurrentUser } from "./lib/auth.js";
-import { fetchUserProfileByEmail } from "./lib/supabase.js";
+import { fetchUserProfileByEmail, ensureUserHasClinic } from "./lib/supabase.js";
 import Brand from "./components/Brand.jsx";
 import LoginStep from "./components/LoginStep.jsx";
 import OtpStep from "./components/OtpStep.jsx";
@@ -33,11 +33,24 @@ export default function App() {
   // retorna true (acesso liberado) ou false (bloqueado).
   // Não toca em currentStep — cabe ao caller decidir o step.
   // ─────────────────────────────────────────────────────────
-  function resolveAccess(authSession, userProfile) {
+  async function resolveAccess(authSession, userProfile) {
+    const hasAccess = canAccessSystem(userProfile);
+
+    if (!hasAccess) {
+      setSession(authSession);
+      setProfile(userProfile);
+      setClinic(null);
+      return false;
+    }
+
+    const { profile: resolvedProfile, clinic: resolvedClinic } =
+      await ensureUserHasClinic(userProfile);
+
     setSession(authSession);
-    setProfile(userProfile);
-    setClinic(null);
-    return canAccessSystem(userProfile);
+    setProfile(resolvedProfile);
+    setClinic(resolvedClinic);
+
+    return true;
   }
 
   // ── Bootstrap: verificar sessão existente ao carregar ────
@@ -49,7 +62,7 @@ export default function App() {
         const existingSession = await getCurrentSession();
         if (existingSession?.user?.email) {
           const userProfile = await fetchUserProfileByEmail(existingSession.user.email);
-          const hasAccess = resolveAccess(existingSession, userProfile);
+          const hasAccess = await resolveAccess(existingSession, userProfile);
           setCurrentStep(hasAccess ? "app" : "blocked");
         } else {
           setTimeout(() => setContentVisible(true), 110);
@@ -97,7 +110,7 @@ export default function App() {
     if (!email) throw new Error("Erro ao autenticar. Email do usuário não encontrado.");
 
     const userProfile = await fetchUserProfileByEmail(email);
-    const hasAccess = resolveAccess(data.session, userProfile);
+    const hasAccess = await resolveAccess(data.session, userProfile);
     setCurrentStep(hasAccess ? "app" : "blocked");
   }
 

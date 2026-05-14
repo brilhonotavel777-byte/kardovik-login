@@ -5,8 +5,9 @@ function getBlockReason(profile) {
   const billingStatus = String(profile.billing_status || "").toLowerCase();
   const accessExpiresAt = profile.access_expires_at;
 
-  if (status !== "active") return "inactive";
-  if (billingStatus !== "paid") return "payment";
+  if (status === "blocked" || status !== "active") return "inactive";
+  if (billingStatus === "canceled" || billingStatus === "refunded") return "inactive";
+  if (billingStatus === "overdue" || billingStatus === "pending" || billingStatus !== "paid") return "payment";
   if (!accessExpiresAt) return "no_expiration";
 
   const expiresAt = new Date(accessExpiresAt);
