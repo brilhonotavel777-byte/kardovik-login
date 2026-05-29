@@ -28,6 +28,27 @@ export default function AdminLayout() {
     return () => window.removeEventListener("resize", h);
   }, []);
 
+  // Remove #root width/centering constraints while admin is active; restore on unmount
+  useEffect(() => {
+    const root = document.getElementById("root");
+    if (!root) return;
+    const prev = {
+      width: root.style.width,
+      maxWidth: root.style.maxWidth,
+      margin: root.style.margin,
+      textAlign: root.style.textAlign,
+      borderInline: root.style.borderInline,
+    };
+    Object.assign(root.style, {
+      width: "100%",
+      maxWidth: "none",
+      margin: "0",
+      textAlign: "left",
+      borderInline: "none",
+    });
+    return () => Object.assign(root.style, prev);
+  }, []);
+
   const sidebarInner = (
     <>
       {/* Brand */}
