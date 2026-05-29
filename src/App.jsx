@@ -278,7 +278,7 @@ export default function App() {
       {/* ── Área administrativa (role: owner) ──────────────── */}
       <Route
         path="/admin"
-        element={<AdminRoute profile={profile} session={session} />}
+        element={<AdminRoute profile={profile} session={session} onLogout={handleLogout} />}
       >
         <Route element={<AdminLayout />}>
           <Route index element={<Navigate to="executive" replace />} />
