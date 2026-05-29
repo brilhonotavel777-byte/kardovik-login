@@ -1,47 +1,20 @@
 import { useState } from "react";
 
-function maskPhone(value) {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length === 0) return "";
-  if (digits.length <= 2) return `(${digits}`;
-  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-}
-
-function detectType(value) {
-  if (value.includes("@")) return "email";
-  if (/[a-zA-Z]/.test(value)) return "email";
-  return "phone";
-}
-
 export default function LoginStep({ contentVisible, isSubmitting, loginError, onContinue }) {
   const [inputValue, setInputValue] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
   const [btnHovered, setBtnHovered] = useState(false);
-  const [phoneError, setPhoneError] = useState(null);
 
-  const inputType = detectType(inputValue);
-  const isValid =
-    inputType === "email"
-      ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputValue)
-      : inputValue.replace(/\D/g, "").length === 11;
+  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputValue);
 
   function handleInputChange(e) {
-    const raw = e.target.value;
-    setInputValue(detectType(raw) === "phone" ? maskPhone(raw) : raw);
-    if (phoneError) setPhoneError(null);
+    setInputValue(e.target.value);
   }
 
   function handleContinue() {
     if (!isValid || isSubmitting) return;
-    if (inputType !== "email") {
-      setPhoneError("Autenticação por celular estará disponível em breve.");
-      return;
-    }
-    onContinue(inputType, inputValue);
+    onContinue("email", inputValue);
   }
-
-  const displayError = phoneError || loginError;
 
   return (
     <div
@@ -72,13 +45,13 @@ export default function LoginStep({ contentVisible, isSubmitting, loginError, on
           margin: "0 0 30px 0",
         }}
       >
-        Digite seu celular ou e-mail para continuar
+        Digite seu e-mail empresarial para continuar
       </p>
 
       <div style={{ width: "100%", marginBottom: "14px" }}>
         <input
-          type="text"
-          placeholder="(11) 99999-9999 ou seuemail@empresa.com"
+          type="email"
+          placeholder="seuemail@empresa.com"
           value={inputValue}
           onChange={handleInputChange}
           onFocus={() => setInputFocused(true)}
@@ -111,13 +84,13 @@ export default function LoginStep({ contentVisible, isSubmitting, loginError, on
           fontSize: "13px",
           lineHeight: 1.5,
           color: "#94a3b8",
-          margin: displayError ? "0 0 10px 0" : "0 0 22px 0",
+          margin: loginError ? "0 0 10px 0" : "0 0 22px 0",
         }}
       >
         Sem senha. Acesso rápido e seguro.
       </p>
 
-      {displayError && (
+      {loginError && (
         <p
           style={{
             fontSize: "13px",
@@ -127,7 +100,7 @@ export default function LoginStep({ contentVisible, isSubmitting, loginError, on
             transition: "all 0.2s ease",
           }}
         >
-          {displayError}
+          {loginError}
         </p>
       )}
 
