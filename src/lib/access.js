@@ -1,4 +1,12 @@
 /**
+ * Verifica se o usuário tem acesso à área administrativa.
+ * Apenas "owner" está liberado. "admin" será habilitado em release futuro.
+ */
+export function isOwnerOrAdmin(profile) {
+  return profile?.role === "owner";
+}
+
+/**
  * Regra central de acesso ao sistema.
  * Toda decisão de "pode entrar ou não" passa por aqui.
  *
