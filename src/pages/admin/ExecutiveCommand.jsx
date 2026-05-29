@@ -3,6 +3,16 @@
 import { useState, useEffect } from "react";
 import { fetchAdminStats } from "../../lib/adminStats.js";
 
+function useIsMobile() {
+  const [v, setV] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const h = () => setV(window.innerWidth < 768);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+  return v;
+}
+
 const MONTHS = [
   { label: "Dez", v: 68400  },
   { label: "Jan", v: 75200  },
@@ -124,6 +134,7 @@ function ProgressBar({ pct, color = "#3b82f6" }) {
 // ── Page ──────────────────────────────────────────────────────
 
 export default function ExecutiveCommand() {
+  const isMobile = useIsMobile();
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -142,10 +153,10 @@ export default function ExecutiveCommand() {
   ];
 
   return (
-    <div style={{ padding: "32px 36px 48px", maxWidth: "1380px" }}>
+    <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px", flexWrap: "wrap", gap: "12px" }}>
         <div>
           <p style={{ fontSize: "11px", fontWeight: "600", color: "#1d4ed8", textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 6px" }}>
             Admin Console
@@ -177,9 +188,9 @@ export default function ExecutiveCommand() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
           gap: "14px",
-          marginBottom: "28px",
+          marginBottom: "20px",
         }}
       >
         {METRICS.map(m => (
@@ -188,7 +199,7 @@ export default function ExecutiveCommand() {
       </div>
 
       {/* Main layout: chart + sidebar */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "20px", marginBottom: "20px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 300px", gap: "20px", marginBottom: "20px" }}>
 
         {/* Revenue chart card */}
         <div

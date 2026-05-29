@@ -1,5 +1,7 @@
 // ── Infrastructure Control ────────────────────────────────────
 
+import { useState, useEffect } from "react";
+
 const SERVICES = [
   { name: "Supabase",  status: "operational", uptime: "99.9%",  latency: "68ms"  },
   { name: "Hotmart",   status: "operational", uptime: "100%",   latency: "142ms" },
@@ -26,11 +28,11 @@ const TIMELINE = [
 ];
 
 const INTEGRITY = [
-  { label: "Database",      pct: 99, color: "#22c55e" },
-  { label: "Auth Service",  pct: 100, color: "#22c55e" },
-  { label: "File Storage",  pct: 97, color: "#22c55e"  },
-  { label: "Edge Functions",pct: 99, color: "#22c55e"  },
-  { label: "Realtime",      pct: 94, color: "#eab308"  },
+  { label: "Database",       pct: 99,  color: "#22c55e" },
+  { label: "Auth Service",   pct: 100, color: "#22c55e" },
+  { label: "File Storage",   pct: 97,  color: "#22c55e" },
+  { label: "Edge Functions", pct: 99,  color: "#22c55e" },
+  { label: "Realtime",       pct: 94,  color: "#eab308" },
 ];
 
 // ── Sub-components ────────────────────────────────────────────
@@ -38,29 +40,19 @@ const INTEGRITY = [
 function ServiceCard({ name, status, uptime, latency }) {
   const isOk = status === "operational";
   return (
-    <div
-      style={{
-        background: "#0c1a2e",
-        border: `1px solid ${isOk ? "#152035" : "rgba(234,179,8,0.25)"}`,
-        borderRadius: "12px",
-        padding: "16px 18px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-      }}
-    >
+    <div style={{
+      background: "#0c1a2e",
+      border: `1px solid ${isOk ? "#152035" : "rgba(234,179,8,0.25)"}`,
+      borderRadius: "12px", padding: "16px 18px",
+      display: "flex", flexDirection: "column", gap: "8px",
+    }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: "13px", fontWeight: "600", color: "#c8d8eb" }}>{name}</span>
-        <span
-          style={{
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: isOk ? "#22c55e" : "#eab308",
-            display: "block",
-            boxShadow: `0 0 6px ${isOk ? "rgba(34,197,94,0.5)" : "rgba(234,179,8,0.5)"}`,
-          }}
-        />
+        <span style={{
+          width: "8px", height: "8px", borderRadius: "50%",
+          background: isOk ? "#22c55e" : "#eab308", display: "block",
+          boxShadow: `0 0 6px ${isOk ? "rgba(34,197,94,0.5)" : "rgba(234,179,8,0.5)"}`,
+        }} />
       </div>
       <div style={{ display: "flex", gap: "12px" }}>
         <div>
@@ -83,15 +75,10 @@ function ServiceCard({ name, status, uptime, latency }) {
 
 function MetricCard({ label, value, accent }) {
   return (
-    <div
-      style={{
-        background: "#0c1a2e",
-        border: "1px solid #152035",
-        borderRadius: "14px",
-        padding: "18px 22px",
-        borderTop: `2px solid ${accent}`,
-      }}
-    >
+    <div style={{
+      background: "#0c1a2e", border: "1px solid #152035",
+      borderRadius: "14px", padding: "18px 22px", borderTop: `2px solid ${accent}`,
+    }}>
       <p style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 8px" }}>
         {label}
       </p>
@@ -103,24 +90,15 @@ function MetricCard({ label, value, accent }) {
 }
 
 function TimelineItem({ time, icon, text, type }) {
-  const c = { warn: "#eab308", success: "#22c55e", info: "#3b82f6" };
+  const c  = { warn: "#eab308",           success: "#22c55e",           info: "#3b82f6"           };
   const bg = { warn: "rgba(234,179,8,0.1)", success: "rgba(34,197,94,0.1)", info: "rgba(59,130,246,0.1)" };
   return (
     <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-      <div
-        style={{
-          width: "26px",
-          height: "26px",
-          borderRadius: "8px",
-          background: bg[type],
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "12px",
-          flexShrink: 0,
-          color: c[type],
-        }}
-      >
+      <div style={{
+        width: "26px", height: "26px", borderRadius: "8px",
+        background: bg[type], display: "flex", alignItems: "center",
+        justifyContent: "center", fontSize: "12px", flexShrink: 0, color: c[type],
+      }}>
         {icon}
       </div>
       <div>
@@ -148,34 +126,38 @@ function IntegrityBar({ label, pct, color }) {
 // ── Page ──────────────────────────────────────────────────────
 
 export default function InfrastructureControl() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+
   const allOk = SERVICES.every(s => s.status === "operational");
+
   return (
-    <div style={{ padding: "32px 36px 48px", maxWidth: "1380px" }}>
+    <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px", flexWrap: "wrap", gap: "12px" }}>
         <div>
           <p style={{ fontSize: "11px", fontWeight: "600", color: "#a855f7", textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 6px" }}>
             Admin Console
           </p>
-          <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 4px", letterSpacing: "-0.5px" }}>
+          <h1 style={{ fontSize: isMobile ? "22px" : "26px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 4px", letterSpacing: "-0.5px" }}>
             Infrastructure Control
           </h1>
           <p style={{ fontSize: "13px", color: "#3d5a73", margin: 0 }}>
             Status de serviços, latência e integridade do sistema
           </p>
         </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "7px",
-            padding: "7px 14px",
-            background: allOk ? "rgba(34,197,94,0.08)" : "rgba(234,179,8,0.08)",
-            border: `1px solid ${allOk ? "rgba(34,197,94,0.2)" : "rgba(234,179,8,0.2)"}`,
-            borderRadius: "20px",
-          }}
-        >
+        <div style={{
+          display: "flex", alignItems: "center", gap: "7px",
+          padding: "7px 14px",
+          background: allOk ? "rgba(34,197,94,0.08)" : "rgba(234,179,8,0.08)",
+          border: `1px solid ${allOk ? "rgba(34,197,94,0.2)" : "rgba(234,179,8,0.2)"}`,
+          borderRadius: "20px",
+        }}>
           <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: allOk ? "#22c55e" : "#eab308", display: "block" }} />
           <span style={{ fontSize: "12px", fontWeight: "600", color: allOk ? "#22c55e" : "#eab308" }}>
             {allOk ? "Todos os sistemas OK" : "1 serviço degradado"}
@@ -184,17 +166,17 @@ export default function InfrastructureControl() {
       </div>
 
       {/* Services */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "12px", marginBottom: "24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "12px", marginBottom: "18px" }}>
         {SERVICES.map(s => <ServiceCard key={s.name} {...s} />)}
       </div>
 
       {/* Metrics */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "12px", marginBottom: "24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px", marginBottom: "18px" }}>
         {METRICS.map(m => <MetricCard key={m.label} {...m} />)}
       </div>
 
       {/* Timeline + Integrity */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "20px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 300px", gap: "20px" }}>
 
         {/* Timeline */}
         <div style={{ background: "#0c1a2e", border: "1px solid #152035", borderRadius: "16px", padding: "22px 24px" }}>

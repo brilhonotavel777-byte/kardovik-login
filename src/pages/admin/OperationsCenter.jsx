@@ -1,23 +1,29 @@
 // ── Operations Center ─────────────────────────────────────────
 
-const METRICS = [
-  { label: "Clínicas Ativas",    value: "184", accent: "#22c55e" },
-  { label: "Em Onboarding",      value: "12",  accent: "#3b82f6" },
-  { label: "Usuários Ativos",    value: "847", accent: "#22c55e" },
-  { label: "Sem Uso (7d)",       value: "8",   accent: "#eab308" },
-  { label: "Suporte Aberto",     value: "3",   accent: "#eab308" },
-  { label: "Cancelamentos",      value: "2",   accent: "#ef4444" },
-];
+import { useState, useEffect } from "react";
+import { fetchAdminOperations } from "../../lib/adminOperations.js";
 
-const CLINICS = [
-  { name: "Sorriso & Saúde",  status: "ativo",    plan: "Pro",   last: "2h atrás",  health: 96 },
-  { name: "Dental Premium",   status: "ativo",    plan: "Pro",   last: "5h atrás",  health: 88 },
-  { name: "OralMax Clínica",  status: "pausa",    plan: "Basic", last: "5 dias",    health: 42 },
-  { name: "SmileX Odonto",    status: "novo",     plan: "Pro",   last: "1h atrás",  health: 100 },
-  { name: "Dental Excellence",status: "ativo",    plan: "Pro",   last: "3h atrás",  health: 91 },
-  { name: "OralPro Center",   status: "risco",    plan: "Basic", last: "9 dias",    health: 18 },
-];
+function useIsMobile() {
+  const [v, setV] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const h = () => setV(window.innerWidth < 768);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+  return v;
+}
 
+function relativeTime(iso) {
+  if (!iso) return "—";
+  const diff = Date.now() - new Date(iso).getTime();
+  const h = Math.floor(diff / 3600000);
+  const d = Math.floor(diff / 86400000);
+  if (h < 1)  return `${Math.max(1, Math.floor(diff / 60000))}min atrás`;
+  if (h < 24) return `${h}h atrás`;
+  return `${d} dia${d !== 1 ? "s" : ""}`;
+}
+
+// Activity permanece mockada — tabela incidents não implementada ainda
 const ACTIVITY = [
   { time: "14:32", event: "SmileX Odonto realizou primeiro acesso", type: "success" },
   { time: "13:47", event: "Sorriso & Saúde — resposta gerada",      type: "info"    },
@@ -110,8 +116,24 @@ function ActivityDot({ type }) {
 // ── Page ──────────────────────────────────────────────────────
 
 export default function OperationsCenter() {
+  const isMobile = useIsMobile();
+  const [data, setData] = useState(null);
+
+  useEffect(() => { fetchAdminOperations().then(setData); }, []);
+
+  const clinics = data?.clinicas ?? [];
+
+  const METRICS = [
+    { label: "Clínicas Ativas", value: data ? String(data.clinicas_ativas) : "—", accent: "#22c55e" },
+    { label: "Em Onboarding",   value: data ? String(clinics.filter(c => c.display_status === "novo").length) : "—", accent: "#3b82f6" },
+    { label: "Usuários Ativos", value: data ? String(clinics.reduce((s, c) => s + c.total_usuarios, 0)) : "—", accent: "#22c55e" },
+    { label: "Sem Uso (7d)",    value: data ? String(clinics.filter(c => c.display_status === "risco").length) : "—", accent: "#eab308" },
+    { label: "Suporte Aberto",  value: "3", accent: "#eab308" },
+    { label: "Cancelamentos",   value: "2", accent: "#ef4444" },
+  ];
+
   return (
-    <div style={{ padding: "32px 36px 48px", maxWidth: "1380px" }}>
+    <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
 
       {/* Header */}
       <div style={{ marginBottom: "32px" }}>
@@ -130,9 +152,9 @@ export default function OperationsCenter() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
           gap: "12px",
-          marginBottom: "28px",
+          marginBottom: "20px",
         }}
       >
         {METRICS.map(m => (
@@ -141,7 +163,7 @@ export default function OperationsCenter() {
       </div>
 
       {/* Table + Activity */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: "20px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 280px", gap: "20px" }}>
 
         {/* Clinic table */}
         <div
@@ -163,7 +185,7 @@ export default function OperationsCenter() {
             }}
           >
             <p style={{ fontSize: "13px", fontWeight: "600", color: "#8ba4c4", margin: 0 }}>
-              Clínicas — <span style={{ color: "#e8f0fd" }}>184 ativas</span>
+              Clínicas — <span style={{ color: "#e8f0fd" }}>{data ? `${data.clinicas_ativas} ativas` : "carregando..."}</span>
             </p>
             <div style={{ display: "flex", gap: "8px" }}>
               {["Todas", "Ativas", "Em risco"].map(f => (
@@ -185,13 +207,15 @@ export default function OperationsCenter() {
             </div>
           </div>
 
-          {/* Column headers */}
+          {/* Column headers + rows — scroll horizontal no mobile */}
+          <div style={{ overflowX: "auto" }}>
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr",
               padding: "10px 24px",
               borderBottom: "1px solid #0a1624",
+              minWidth: "520px",
             }}
           >
             {["Clínica", "Status", "Plano", "Último acesso", "Saúde"].map(h => (
@@ -205,36 +229,55 @@ export default function OperationsCenter() {
           </div>
 
           {/* Rows */}
-          {CLINICS.map(({ name, status, plan, last, health }, i) => (
-            <div
-              key={name}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr",
-                alignItems: "center",
-                padding: "13px 24px",
-                borderBottom: i < CLINICS.length - 1 ? "1px solid #09161f" : "none",
-              }}
-            >
-              <span style={{ fontSize: "13px", fontWeight: "600", color: "#c8d8eb" }}>{name}</span>
-              <StatusBadge status={status} />
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: "600",
-                  color: plan === "Pro" ? "#60a5fa" : "#3d5a73",
-                  background: plan === "Pro" ? "rgba(59,130,246,0.08)" : "rgba(61,90,115,0.1)",
-                  padding: "2px 8px",
-                  borderRadius: "6px",
-                  display: "inline-block",
-                }}
-              >
-                {plan}
-              </span>
-              <span style={{ fontSize: "12px", color: "#3d5a73" }}>{last}</span>
-              <HealthBar health={health} />
+          {!data ? (
+            <div style={{ padding: "32px 24px", textAlign: "center" }}>
+              <p style={{ fontSize: "12px", color: "#1e3a55", margin: 0, letterSpacing: "0.04em" }}>Carregando clínicas...</p>
             </div>
-          ))}
+          ) : clinics.length === 0 ? (
+            <div style={{ padding: "40px 24px", textAlign: "center", display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
+              <p style={{ fontSize: "13px", color: "#2d5070", margin: 0 }}>Nenhuma clínica cadastrada</p>
+              <p style={{ fontSize: "11px", color: "#1e3a55", margin: 0 }}>Os dados aparecerão aqui após o primeiro cadastro</p>
+            </div>
+          ) : (
+            clinics.map(({ id, nome, display_status, plano_dominante, ultimo_acesso_derivado, health_score_derivado }, i) => {
+              const isPremium = plano_dominante === "anual";
+              const planLabel = plano_dominante
+                ? plano_dominante.charAt(0).toUpperCase() + plano_dominante.slice(1)
+                : "—";
+              return (
+                <div
+                  key={id}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr",
+                    alignItems: "center",
+                    padding: "13px 24px",
+                    borderBottom: i < clinics.length - 1 ? "1px solid #09161f" : "none",
+                    minWidth: "520px",
+                  }}
+                >
+                  <span style={{ fontSize: "13px", fontWeight: "600", color: "#c8d8eb" }}>{nome ?? "—"}</span>
+                  <StatusBadge status={display_status} />
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      color: isPremium ? "#60a5fa" : "#3d5a73",
+                      background: isPremium ? "rgba(59,130,246,0.08)" : "rgba(61,90,115,0.1)",
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      display: "inline-block",
+                    }}
+                  >
+                    {planLabel}
+                  </span>
+                  <span style={{ fontSize: "12px", color: "#3d5a73" }}>{relativeTime(ultimo_acesso_derivado)}</span>
+                  <HealthBar health={health_score_derivado} />
+                </div>
+              );
+            })
+          )}
+          </div>{/* end overflowX */}
         </div>
 
         {/* Activity feed */}
