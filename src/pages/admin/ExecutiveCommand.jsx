@@ -1,15 +1,7 @@
 // ── Executive Command Center ─────────────────────────────────
 
-const METRICS = [
-  { label: "Receita Hoje",      value: "R$ 4.280",   trend: "+12%",  up: true  },
-  { label: "Receita Semana",    value: "R$ 28.640",  trend: "+8%",   up: true  },
-  { label: "Receita Mês",       value: "R$ 94.320",  trend: "+18%",  up: true  },
-  { label: "ARR Projetado",     value: "R$ 1,13M",   trend: "+22%",  up: true  },
-  { label: "Clínicas Ativas",   value: "184",        trend: "+6",    up: true  },
-  { label: "Novas Vendas",      value: "23",         trend: "+4",    up: true  },
-  { label: "Ticket Médio",      value: "R$ 512",     trend: "-3%",   up: false },
-  { label: "Receita Recuperada",value: "R$ 8.400",   trend: "+34%",  up: true  },
-];
+import { useState, useEffect } from "react";
+import { fetchAdminStats } from "../../lib/adminStats.js";
 
 const MONTHS = [
   { label: "Dez", v: 68400  },
@@ -132,6 +124,23 @@ function ProgressBar({ pct, color = "#3b82f6" }) {
 // ── Page ──────────────────────────────────────────────────────
 
 export default function ExecutiveCommand() {
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    fetchAdminStats().then(setStats);
+  }, []);
+
+  const METRICS = [
+    { label: "Receita Hoje",       value: "R$ 4.280",  trend: "+12%", up: true  },
+    { label: "Receita Semana",     value: "R$ 28.640", trend: "+8%",  up: true  },
+    { label: "Receita Mês",        value: "R$ 94.320", trend: "+18%", up: true  },
+    { label: "ARR Projetado",      value: "R$ 1,13M",  trend: "+22%", up: true  },
+    { label: "Clínicas Ativas",    value: stats ? String(stats.clinicas_ativas) : "—", trend: "+6", up: true },
+    { label: "Novas Vendas",       value: stats ? String(stats.novas_vendas_mes) : "—", trend: "+4", up: true },
+    { label: "Ticket Médio",       value: "R$ 512",    trend: "-3%",  up: false },
+    { label: "Receita Recuperada", value: "R$ 8.400",  trend: "+34%", up: true  },
+  ];
+
   return (
     <div style={{ padding: "32px 36px 48px", maxWidth: "1380px" }}>
 
