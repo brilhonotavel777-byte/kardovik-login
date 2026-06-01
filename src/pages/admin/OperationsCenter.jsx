@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchAdminOperations } from "../../lib/adminOperations.js";
+import { fetchAdminStats } from "../../lib/adminStats.js";
 
 function useIsMobile() {
   const [v, setV] = useState(window.innerWidth < 768);
@@ -110,8 +111,10 @@ function ActivityDot({ type }) {
 export default function OperationsCenter() {
   const isMobile = useIsMobile();
   const [data, setData] = useState(null);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => { fetchAdminOperations().then(setData); }, []);
+  useEffect(() => { fetchAdminStats().then(setStats); }, []);
 
   const clinics = data?.clinicas ?? [];
 
@@ -120,8 +123,8 @@ export default function OperationsCenter() {
     { label: "Em Onboarding",   value: data ? String(clinics.filter(c => c.display_status === "novo").length) : "—", accent: "#3b82f6" },
     { label: "Usuários Ativos", value: data ? String(clinics.reduce((s, c) => s + c.total_usuarios, 0)) : "—", accent: "#22c55e" },
     { label: "Sem Uso (7d)",    value: data ? String(clinics.filter(c => c.display_status === "risco").length) : "—", accent: "#eab308" },
-    { label: "Suporte Aberto",  value: "0", accent: "#eab308" },
-    { label: "Cancelamentos",   value: "0", accent: "#ef4444" },
+    { label: "Expirando (7d)", value: stats ? String(stats.acesso_expirando_7d) : "—", accent: "#eab308" },
+    { label: "Cancelamentos",  value: stats ? String(stats.cancelamentos_mes)    : "—", accent: "#ef4444" },
   ];
 
   return (

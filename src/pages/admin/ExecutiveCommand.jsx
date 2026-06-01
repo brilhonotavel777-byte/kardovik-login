@@ -32,8 +32,6 @@ const CHANNELS = [
   { name: "Orgânico",   pct: 0, color: "#22c55e" },
 ];
 
-const ALERTS = [];
-
 // ── Sub-components ────────────────────────────────────────────
 
 function MetricCard({ label, value, trend, up }) {
@@ -141,15 +139,27 @@ export default function ExecutiveCommand() {
   }, []);
 
   const METRICS = [
+    // Financeiro — sem fonte real ainda
     { label: "Receita Hoje",       value: brl(0), trend: "+0%", up: true },
     { label: "Receita Semana",     value: brl(0), trend: "+0%", up: true },
     { label: "Receita Mês",        value: brl(0), trend: "+0%", up: true },
     { label: "ARR Projetado",      value: brl(0), trend: "+0%", up: true },
-    { label: "Clínicas Ativas",    value: stats ? String(stats.clinicas_ativas) : "—", trend: "+0", up: true },
-    { label: "Novas Vendas",       value: stats ? String(stats.novas_vendas_mes) : "—", trend: "+0", up: true },
     { label: "Ticket Médio",       value: brl(0), trend: "+0%", up: true },
     { label: "Receita Recuperada", value: brl(0), trend: "+0%", up: true },
+    // Operacional — fonte real: get_admin_stats()
+    { label: "Clínicas Ativas",   value: stats ? String(stats.clinicas_ativas)     : "—", trend: "+0", up: true },
+    { label: "Novas Vendas",      value: stats ? String(stats.novas_vendas_mes)    : "—", trend: "+0", up: true },
+    { label: "Usuários Pagos",    value: stats ? String(stats.usuarios_pagos)      : "—", trend: "+0", up: true },
+    { label: "Plano Anual",       value: stats ? String(stats.plano_anual)         : "—", trend: "+0", up: true },
+    { label: "Plano Mensal",      value: stats ? String(stats.plano_mensal)        : "—", trend: "+0", up: true },
+    { label: "Cancelamentos Mês", value: stats ? String(stats.cancelamentos_mes)   : "—", trend: "+0", up: stats ? stats.cancelamentos_mes === 0 : true },
+    { label: "Expirando (7d)",    value: stats ? String(stats.acesso_expirando_7d) : "—", trend: "+0", up: stats ? stats.acesso_expirando_7d === 0 : true },
   ];
+
+  const ALERTS = stats ? [
+    ...(stats.acesso_expirando_7d > 0 ? [{ level: "warn", text: `${stats.acesso_expirando_7d} assinatura${stats.acesso_expirando_7d !== 1 ? "s" : ""} com acesso expirando nos próximos 7 dias.` }] : []),
+    ...(stats.cancelamentos_mes > 0 ? [{ level: "info", text: `${stats.cancelamentos_mes} cancelamento${stats.cancelamentos_mes !== 1 ? "s" : ""} registrado${stats.cancelamentos_mes !== 1 ? "s" : ""} este mês.` }] : []),
+  ] : [];
 
   return (
     <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
@@ -271,7 +281,11 @@ export default function ExecutiveCommand() {
           Alertas Executivos
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {ALERTS.map(({ level, text }, i) => (
+          {ALERTS.length === 0 ? (
+            <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>
+              {stats ? "Nenhum alerta no momento" : "Carregando..."}
+            </p>
+          ) : ALERTS.map(({ level, text }, i) => (
             <div
               key={i}
               style={{
