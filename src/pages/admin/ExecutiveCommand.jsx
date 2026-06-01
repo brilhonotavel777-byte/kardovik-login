@@ -13,27 +13,26 @@ function useIsMobile() {
   return v;
 }
 
+const brl = (n) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n ?? 0);
+
 const MONTHS = [
-  { label: "Dez", v: 68400  },
-  { label: "Jan", v: 75200  },
-  { label: "Fev", v: 82100  },
-  { label: "Mar", v: 70800  },
-  { label: "Abr", v: 88600  },
-  { label: "Mai", v: 94320  },
+  { label: "Dez", v: 0 },
+  { label: "Jan", v: 0 },
+  { label: "Fev", v: 0 },
+  { label: "Mar", v: 0 },
+  { label: "Abr", v: 0 },
+  { label: "Mai", v: 0 },
 ];
 
 const CHANNELS = [
-  { name: "Meta Ads",   pct: 38, color: "#3b82f6"  },
-  { name: "TikTok",     pct: 24, color: "#a855f7"  },
-  { name: "Instagram",  pct: 22, color: "#ec4899"  },
-  { name: "Orgânico",   pct: 16, color: "#22c55e"  },
+  { name: "Meta Ads",   pct: 0, color: "#3b82f6" },
+  { name: "TikTok",     pct: 0, color: "#a855f7" },
+  { name: "Instagram",  pct: 0, color: "#ec4899" },
+  { name: "Orgânico",   pct: 0, color: "#22c55e" },
 ];
 
-const ALERTS = [
-  { level: "warn",  text: "Ticket médio caiu 3% — abaixo da meta semanal." },
-  { level: "info",  text: "4 clínicas sem acesso nos últimos 7 dias." },
-  { level: "warn",  text: "Meta do mês a 78,6% — 8 dias restantes." },
-];
+const ALERTS = [];
 
 // ── Sub-components ────────────────────────────────────────────
 
@@ -104,7 +103,7 @@ function RevenueChart() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  94,3k
+                  {brl(MONTHS[MONTHS.length - 1].v)}
                 </span>
               )}
             </div>
@@ -142,14 +141,14 @@ export default function ExecutiveCommand() {
   }, []);
 
   const METRICS = [
-    { label: "Receita Hoje",       value: "R$ 4.280",  trend: "+12%", up: true  },
-    { label: "Receita Semana",     value: "R$ 28.640", trend: "+8%",  up: true  },
-    { label: "Receita Mês",        value: "R$ 94.320", trend: "+18%", up: true  },
-    { label: "ARR Projetado",      value: "R$ 1,13M",  trend: "+22%", up: true  },
-    { label: "Clínicas Ativas",    value: stats ? String(stats.clinicas_ativas) : "—", trend: "+6", up: true },
-    { label: "Novas Vendas",       value: stats ? String(stats.novas_vendas_mes) : "—", trend: "+4", up: true },
-    { label: "Ticket Médio",       value: "R$ 512",    trend: "-3%",  up: false },
-    { label: "Receita Recuperada", value: "R$ 8.400",  trend: "+34%", up: true  },
+    { label: "Receita Hoje",       value: brl(0), trend: "+0%", up: true },
+    { label: "Receita Semana",     value: brl(0), trend: "+0%", up: true },
+    { label: "Receita Mês",        value: brl(0), trend: "+0%", up: true },
+    { label: "ARR Projetado",      value: brl(0), trend: "+0%", up: true },
+    { label: "Clínicas Ativas",    value: stats ? String(stats.clinicas_ativas) : "—", trend: "+0", up: true },
+    { label: "Novas Vendas",       value: stats ? String(stats.novas_vendas_mes) : "—", trend: "+0", up: true },
+    { label: "Ticket Médio",       value: brl(0), trend: "+0%", up: true },
+    { label: "Receita Recuperada", value: brl(0), trend: "+0%", up: true },
   ];
 
   return (
@@ -216,11 +215,11 @@ export default function ExecutiveCommand() {
                 Receita Mensal
               </p>
               <p style={{ fontSize: "20px", fontWeight: "700", color: "#e8f0fd", margin: 0, letterSpacing: "-0.3px" }}>
-                R$ 94.320 <span style={{ fontSize: "13px", fontWeight: "400", color: "#3d5a73" }}>/ mai 2026</span>
+                {brl(0)} <span style={{ fontSize: "13px", fontWeight: "400", color: "#3d5a73" }}>/ {new Date().toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}</span>
               </p>
             </div>
             <span style={{ fontSize: "12px", fontWeight: "600", color: "#22c55e", background: "rgba(34,197,94,0.1)", padding: "3px 10px", borderRadius: "20px" }}>
-              ▲ +18% MoM
+              0% MoM
             </span>
           </div>
           <RevenueChart />
@@ -235,12 +234,12 @@ export default function ExecutiveCommand() {
               Meta do Mês
             </p>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "10px" }}>
-              <span style={{ fontSize: "22px", fontWeight: "700", color: "#e8f0fd", letterSpacing: "-0.4px" }}>78,6%</span>
-              <span style={{ fontSize: "11px", color: "#3d5a73" }}>R$ 120k alvo</span>
+              <span style={{ fontSize: "22px", fontWeight: "700", color: "#e8f0fd", letterSpacing: "-0.4px" }}>0%</span>
+              <span style={{ fontSize: "11px", color: "#3d5a73" }}>{brl(0)} alvo</span>
             </div>
-            <ProgressBar pct={78.6} />
+            <ProgressBar pct={0} />
             <p style={{ fontSize: "11px", color: "#2d5070", margin: "8px 0 0" }}>
-              Faltam R$ 25.680 • 8 dias
+              Sem dados disponíveis
             </p>
           </div>
 

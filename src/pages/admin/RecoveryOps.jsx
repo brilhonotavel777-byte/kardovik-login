@@ -3,41 +3,18 @@
 import { useState, useEffect } from "react";
 
 const METRICS = [
-  { label: "Incidentes Abertos",  value: "2",  accent: "#ef4444" },
-  { label: "Falhas Críticas",     value: "0",  accent: "#22c55e" },
-  { label: "Alertas Médios",      value: "2",  accent: "#eab308" },
-  { label: "Erros Resolvidos",    value: "8",  accent: "#22c55e" },
-  { label: "Clínicas Impactadas", value: "3",  accent: "#eab308" },
+  { label: "Incidentes Abertos",  value: "0", accent: "#ef4444" },
+  { label: "Falhas Críticas",     value: "0", accent: "#22c55e" },
+  { label: "Alertas Médios",      value: "0", accent: "#eab308" },
+  { label: "Erros Resolvidos",    value: "0", accent: "#22c55e" },
+  { label: "Clínicas Impactadas", value: "0", accent: "#eab308" },
 ];
 
-const INCIDENTS = [
-  {
-    id: "INC-001", service: "OpenAI API",
-    impact: "Respostas com latência elevada", severity: "medium", status: "open",
-    origin: "Rate limit / instabilidade provider", action: "Monitorar; escalar se >1h",
-  },
-  {
-    id: "INC-002", service: "SMTP",
-    impact: "2 emails de confirmação não entregues", severity: "low", status: "investigating",
-    origin: "Rate limit temporário", action: "Retry automático agendado",
-  },
-  {
-    id: "INC-003", service: "Supabase",
-    impact: "Nenhum impacto ao usuário", severity: "low", status: "resolved",
-    origin: "Spike de leitura no DB às 07h", action: "Resolvido — monitorando",
-  },
-];
+const INCIDENTS = [];
 
-const ERROR_MAP = [
-  { error: "Alta latência nas respostas", origin: "OpenAI API instável",  impact: "Lentidão para 3 clínicas", action: "Monitorar provider", level: "medium" },
-  { error: "Email não entregue",          origin: "SMTP rate limit",       impact: "2 usuários afetados",      action: "Retry em fila",      level: "low"    },
-];
+const ERROR_MAP = [];
 
-const PRIORITY = [
-  { label: "Alta prioridade",  items: ["OpenAI — latência crítica se persistir"],         color: "#ef4444" },
-  { label: "Média prioridade", items: ["SMTP — verificar retry", "OralPro — sem acesso"], color: "#eab308" },
-  { label: "Baixa prioridade", items: ["8 incidentes resolvidos na semana"],               color: "#22c55e" },
-];
+const PRIORITY = [];
 
 // ── Sub-components ────────────────────────────────────────────
 
@@ -149,7 +126,11 @@ export default function RecoveryOps() {
             ))}
           </div>
 
-          {INCIDENTS.map(({ id, service, impact, severity, status }, i) => (
+          {INCIDENTS.length === 0 ? (
+            <div style={{ padding: "40px 24px", textAlign: "center" }}>
+              <p style={{ fontSize: "13px", color: "#2d5070", margin: 0 }}>Nenhum incidente registrado</p>
+            </div>
+          ) : INCIDENTS.map(({ id, service, impact, severity, status }, i) => (
             <div
               key={id}
               style={{
@@ -189,7 +170,9 @@ export default function RecoveryOps() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {ERROR_MAP.map(({ error, origin, impact, action, level }, i) => {
+              {ERROR_MAP.length === 0 ? (
+                <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Nenhum erro registrado</p>
+              ) : ERROR_MAP.map(({ error, origin, impact, action, level }, i) => {
                 const borderColor = level === "medium" ? "rgba(234,179,8,0.2)" : "rgba(107,140,172,0.15)";
                 const bg = level === "medium" ? "rgba(234,179,8,0.04)" : "rgba(107,140,172,0.04)";
                 return (
@@ -221,7 +204,9 @@ export default function RecoveryOps() {
             Painel de Prioridade
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {PRIORITY.map(({ label, items, color }) => (
+            {PRIORITY.length === 0 ? (
+              <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Sem prioridades ativas</p>
+            ) : PRIORITY.map(({ label, items, color }) => (
               <div key={label}>
                 <p style={{ fontSize: "10px", fontWeight: "700", color, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 7px" }}>
                   {label}

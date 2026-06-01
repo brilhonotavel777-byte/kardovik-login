@@ -23,15 +23,7 @@ function relativeTime(iso) {
   return `${d} dia${d !== 1 ? "s" : ""}`;
 }
 
-// Activity permanece mockada — tabela incidents não implementada ainda
-const ACTIVITY = [
-  { time: "14:32", event: "SmileX Odonto realizou primeiro acesso", type: "success" },
-  { time: "13:47", event: "Sorriso & Saúde — resposta gerada",      type: "info"    },
-  { time: "12:10", event: "OralPro Center sem acesso há 9 dias",    type: "warn"    },
-  { time: "11:38", event: "Dental Premium — upgrade para Pro",      type: "success" },
-  { time: "10:55", event: "Novo cadastro: SmileX Odonto",           type: "info"    },
-  { time: "09:20", event: "Cancelamento solicitado: Clin. Brite",   type: "danger"  },
-];
+const ACTIVITY = [];
 
 // ── Sub-components ────────────────────────────────────────────
 
@@ -128,8 +120,8 @@ export default function OperationsCenter() {
     { label: "Em Onboarding",   value: data ? String(clinics.filter(c => c.display_status === "novo").length) : "—", accent: "#3b82f6" },
     { label: "Usuários Ativos", value: data ? String(clinics.reduce((s, c) => s + c.total_usuarios, 0)) : "—", accent: "#22c55e" },
     { label: "Sem Uso (7d)",    value: data ? String(clinics.filter(c => c.display_status === "risco").length) : "—", accent: "#eab308" },
-    { label: "Suporte Aberto",  value: "3", accent: "#eab308" },
-    { label: "Cancelamentos",   value: "2", accent: "#ef4444" },
+    { label: "Suporte Aberto",  value: "0", accent: "#eab308" },
+    { label: "Cancelamentos",   value: "0", accent: "#ef4444" },
   ];
 
   return (
@@ -293,7 +285,9 @@ export default function OperationsCenter() {
             Atividade Recente
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            {ACTIVITY.map(({ time, event, type }, i) => (
+            {ACTIVITY.length === 0 ? (
+              <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Nenhuma atividade registrada</p>
+            ) : ACTIVITY.map(({ time, event, type }, i) => (
               <div key={i} style={{ display: "flex", gap: "10px" }}>
                 <ActivityDot type={type} />
                 <div>

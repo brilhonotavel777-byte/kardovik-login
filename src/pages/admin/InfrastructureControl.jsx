@@ -3,46 +3,43 @@
 import { useState, useEffect } from "react";
 
 const SERVICES = [
-  { name: "Supabase",  status: "operational", uptime: "99.9%",  latency: "68ms"  },
-  { name: "Hotmart",   status: "operational", uptime: "100%",   latency: "142ms" },
-  { name: "OpenAI",    status: "degraded",    uptime: "98.7%",  latency: "824ms" },
-  { name: "Railway",   status: "operational", uptime: "100%",   latency: "54ms"  },
-  { name: "SMTP",      status: "operational", uptime: "99.7%",  latency: "211ms" },
-  { name: "Webhooks",  status: "operational", uptime: "100%",   latency: "38ms"  },
+  { name: "Supabase",  status: "pending", uptime: "—", latency: "—" },
+  { name: "Hotmart",   status: "pending", uptime: "—", latency: "—" },
+  { name: "OpenAI",    status: "pending", uptime: "—", latency: "—" },
+  { name: "Railway",   status: "pending", uptime: "—", latency: "—" },
+  { name: "SMTP",      status: "pending", uptime: "—", latency: "—" },
+  { name: "Webhooks",  status: "pending", uptime: "—", latency: "—" },
 ];
 
 const METRICS = [
-  { label: "Uptime Global",        value: "99,94%",  accent: "#22c55e"  },
-  { label: "Latência Média",       value: "182 ms",  accent: "#3b82f6"  },
-  { label: "Requisições Hoje",     value: "14.832",  accent: "#3b82f6"  },
-  { label: "Falhas nas 24h",       value: "3",       accent: "#eab308"  },
-  { label: "Custo IA Estimado",    value: "$ 4,28",  accent: "#a855f7"  },
+  { label: "Uptime Global",     value: "—",       accent: "#22c55e" },
+  { label: "Latência Média",    value: "—",       accent: "#3b82f6" },
+  { label: "Requisições Hoje",  value: "0",       accent: "#3b82f6" },
+  { label: "Falhas nas 24h",    value: "0",       accent: "#eab308" },
+  { label: "Custo IA Estimado", value: "R$ 0,00", accent: "#a855f7" },
 ];
 
-const TIMELINE = [
-  { time: "14:22", icon: "⚠", text: "OpenAI — latência elevada detectada (824ms)",       type: "warn"    },
-  { time: "12:45", icon: "✓", text: "Railway — deploy automático concluído com sucesso",  type: "success" },
-  { time: "11:03", icon: "ℹ", text: "SMTP — rate limit atingido momentaneamente",         type: "info"    },
-  { time: "08:30", icon: "✓", text: "Backup diário do Supabase concluído",                type: "success" },
-  { time: "07:15", icon: "ℹ", text: "Restart automático do worker Railway",               type: "info"    },
-];
+const TIMELINE = [];
 
 const INTEGRITY = [
-  { label: "Database",       pct: 99,  color: "#22c55e" },
-  { label: "Auth Service",   pct: 100, color: "#22c55e" },
-  { label: "File Storage",   pct: 97,  color: "#22c55e" },
-  { label: "Edge Functions", pct: 99,  color: "#22c55e" },
-  { label: "Realtime",       pct: 94,  color: "#eab308" },
+  { label: "Database",       pct: 0, color: "#2d5070" },
+  { label: "Auth Service",   pct: 0, color: "#2d5070" },
+  { label: "File Storage",   pct: 0, color: "#2d5070" },
+  { label: "Edge Functions", pct: 0, color: "#2d5070" },
+  { label: "Realtime",       pct: 0, color: "#2d5070" },
 ];
 
 // ── Sub-components ────────────────────────────────────────────
 
 function ServiceCard({ name, status, uptime, latency }) {
   const isOk = status === "operational";
+  const isPending = status === "pending";
+  const dotColor = isOk ? "#22c55e" : isPending ? "#2d5070" : "#eab308";
+  const dotShadow = isOk ? "rgba(34,197,94,0.5)" : isPending ? "transparent" : "rgba(234,179,8,0.5)";
   return (
     <div style={{
       background: "#0c1a2e",
-      border: `1px solid ${isOk ? "#152035" : "rgba(234,179,8,0.25)"}`,
+      border: `1px solid ${!isOk && !isPending ? "rgba(234,179,8,0.25)" : "#152035"}`,
       borderRadius: "12px", padding: "16px 18px",
       display: "flex", flexDirection: "column", gap: "8px",
     }}>
@@ -50,23 +47,28 @@ function ServiceCard({ name, status, uptime, latency }) {
         <span style={{ fontSize: "13px", fontWeight: "600", color: "#c8d8eb" }}>{name}</span>
         <span style={{
           width: "8px", height: "8px", borderRadius: "50%",
-          background: isOk ? "#22c55e" : "#eab308", display: "block",
-          boxShadow: `0 0 6px ${isOk ? "rgba(34,197,94,0.5)" : "rgba(234,179,8,0.5)"}`,
+          background: dotColor, display: "block",
+          boxShadow: `0 0 6px ${dotShadow}`,
         }} />
       </div>
       <div style={{ display: "flex", gap: "12px" }}>
         <div>
           <p style={{ fontSize: "9px", color: "#1e3a55", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>Uptime</p>
-          <p style={{ fontSize: "13px", fontWeight: "700", color: isOk ? "#22c55e" : "#eab308", margin: 0 }}>{uptime}</p>
+          <p style={{ fontSize: "13px", fontWeight: "700", color: isOk ? "#22c55e" : "#2d5070", margin: 0 }}>{uptime}</p>
         </div>
         <div>
           <p style={{ fontSize: "9px", color: "#1e3a55", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>Latência</p>
-          <p style={{ fontSize: "13px", fontWeight: "700", color: isOk ? "#6b8cac" : "#eab308", margin: 0 }}>{latency}</p>
+          <p style={{ fontSize: "13px", fontWeight: "700", color: isOk ? "#6b8cac" : "#2d5070", margin: 0 }}>{latency}</p>
         </div>
       </div>
-      {!isOk && (
+      {!isOk && !isPending && (
         <span style={{ fontSize: "10px", fontWeight: "600", color: "#eab308", background: "rgba(234,179,8,0.08)", padding: "2px 8px", borderRadius: "4px", display: "inline-block" }}>
           Desempenho degradado
+        </span>
+      )}
+      {isPending && (
+        <span style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", background: "rgba(45,80,112,0.06)", padding: "2px 8px", borderRadius: "4px", display: "inline-block" }}>
+          Aguardando monitoramento
         </span>
       )}
     </div>
@@ -134,6 +136,7 @@ export default function InfrastructureControl() {
   }, []);
 
   const allOk = SERVICES.every(s => s.status === "operational");
+  const allPending = SERVICES.every(s => s.status === "pending");
 
   return (
     <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
@@ -154,13 +157,13 @@ export default function InfrastructureControl() {
         <div style={{
           display: "flex", alignItems: "center", gap: "7px",
           padding: "7px 14px",
-          background: allOk ? "rgba(34,197,94,0.08)" : "rgba(234,179,8,0.08)",
-          border: `1px solid ${allOk ? "rgba(34,197,94,0.2)" : "rgba(234,179,8,0.2)"}`,
+          background: allPending ? "rgba(45,80,112,0.06)" : allOk ? "rgba(34,197,94,0.08)" : "rgba(234,179,8,0.08)",
+          border: `1px solid ${allPending ? "rgba(45,80,112,0.2)" : allOk ? "rgba(34,197,94,0.2)" : "rgba(234,179,8,0.2)"}`,
           borderRadius: "20px",
         }}>
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: allOk ? "#22c55e" : "#eab308", display: "block" }} />
-          <span style={{ fontSize: "12px", fontWeight: "600", color: allOk ? "#22c55e" : "#eab308" }}>
-            {allOk ? "Todos os sistemas OK" : "1 serviço degradado"}
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: allPending ? "#2d5070" : allOk ? "#22c55e" : "#eab308", display: "block" }} />
+          <span style={{ fontSize: "12px", fontWeight: "600", color: allPending ? "#2d5070" : allOk ? "#22c55e" : "#eab308" }}>
+            {allPending ? "Aguardando dados" : allOk ? "Todos os sistemas OK" : "1 serviço degradado"}
           </span>
         </div>
       </div>
@@ -184,7 +187,10 @@ export default function InfrastructureControl() {
             Timeline de Eventos
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {TIMELINE.map((item, i) => <TimelineItem key={i} {...item} />)}
+            {TIMELINE.length === 0
+              ? <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Nenhum evento registrado</p>
+              : TIMELINE.map((item, i) => <TimelineItem key={i} {...item} />)
+            }
           </div>
         </div>
 
@@ -198,8 +204,8 @@ export default function InfrastructureControl() {
           </div>
           <div style={{ marginTop: "20px", padding: "12px 14px", background: "#071020", borderRadius: "10px", border: "1px solid #0e1e30" }}>
             <p style={{ fontSize: "11px", color: "#2d5070", margin: "0 0 4px" }}>Score geral</p>
-            <p style={{ fontSize: "20px", fontWeight: "700", color: "#22c55e", margin: 0, letterSpacing: "-0.3px" }}>
-              97,8 <span style={{ fontSize: "11px", fontWeight: "400", color: "#2d5070" }}>/ 100</span>
+            <p style={{ fontSize: "20px", fontWeight: "700", color: "#2d5070", margin: 0, letterSpacing: "-0.3px" }}>
+              — <span style={{ fontSize: "11px", fontWeight: "400", color: "#2d5070" }}>/ 100</span>
             </p>
           </div>
         </div>
