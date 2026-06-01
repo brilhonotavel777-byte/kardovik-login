@@ -176,3 +176,14 @@ export async function ensureUserHasClinic(userProfile) {
   const updatedProfile = (await fetchUserProfile(userProfile.id)) ?? userProfile;
   return { profile: updatedProfile, clinic };
 }
+
+/**
+ * Registra o timestamp de login do usuário autenticado.
+ * Fire-and-forget — falha silenciosa não bloqueia o acesso.
+ */
+export async function touchLastLogin() {
+  const { error } = await supabase.rpc("touch_last_login");
+  if (error) {
+    console.error("[Kardovik] touchLastLogin:", error.message);
+  }
+}

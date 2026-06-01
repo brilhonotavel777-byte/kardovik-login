@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { canAccessSystem, isOwnerOrAdmin } from "./lib/access.js";
 import { sendEmailOtp, verifyEmailOtp, getCurrentSession, signOutCurrentUser } from "./lib/auth.js";
-import { fetchUserProfileByEmail, ensureUserHasClinic } from "./lib/supabase.js";
+import { fetchUserProfileByEmail, ensureUserHasClinic, touchLastLogin } from "./lib/supabase.js";
 import Brand from "./components/Brand.jsx";
 import LoginStep from "./components/LoginStep.jsx";
 import OtpStep from "./components/OtpStep.jsx";
@@ -130,6 +130,7 @@ export default function App() {
     const dest = await resolveAccess(data.session, userProfile);
 
     if (dest) {
+      touchLastLogin(); // fire-and-forget — não bloqueia nem depende do resultado
       navigate(dest, { replace: true });
     } else {
       setCurrentStep("blocked");
