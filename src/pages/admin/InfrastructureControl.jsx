@@ -171,6 +171,25 @@ export default function InfrastructureControl() {
         </div>
       </div>
 
+      {/* Context banner */}
+      <div style={{
+        display: "flex", alignItems: "flex-start", gap: "12px",
+        padding: "14px 18px", marginBottom: "20px",
+        background: "rgba(45,80,112,0.06)",
+        border: "1px solid rgba(45,80,112,0.14)",
+        borderRadius: "12px",
+      }}>
+        <span style={{ fontSize: "14px", flexShrink: 0, lineHeight: "20px", color: "#2d5070" }}>ℹ</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+          <p style={{ fontSize: "12px", fontWeight: "600", color: "#3d5a73", margin: 0 }}>
+            Monitoramento de infraestrutura ainda não conectado.
+          </p>
+          <p style={{ fontSize: "11px", color: "#2d5070", margin: 0, lineHeight: 1.5 }}>
+            Os indicadores desta página serão ativados quando fontes reais de observabilidade forem integradas.
+          </p>
+        </div>
+      </div>
+
       {/* Services */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "12px", marginBottom: "18px" }}>
         {SERVICES.map(s => <ServiceCard key={s.name} {...s} />)}
@@ -190,10 +209,12 @@ export default function InfrastructureControl() {
             Timeline de Eventos
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {TIMELINE.length === 0
-              ? <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Nenhum evento registrado</p>
-              : TIMELINE.map((item, i) => <TimelineItem key={i} {...item} />)
-            }
+            {TIMELINE.length === 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Nenhum evento de infraestrutura monitorado.</p>
+                <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Requer integração de observabilidade.</p>
+              </div>
+            ) : TIMELINE.map((item, i) => <TimelineItem key={i} {...item} />)}
           </div>
         </div>
 
@@ -206,10 +227,9 @@ export default function InfrastructureControl() {
             {INTEGRITY.map(item => <IntegrityBar key={item.label} {...item} />)}
           </div>
           <div style={{ marginTop: "20px", padding: "12px 14px", background: "#071020", borderRadius: "10px", border: "1px solid #0e1e30" }}>
-            <p style={{ fontSize: "11px", color: "#2d5070", margin: "0 0 4px" }}>Score geral</p>
-            <p style={{ fontSize: "20px", fontWeight: "700", color: "#2d5070", margin: 0, letterSpacing: "-0.3px" }}>
-              — <span style={{ fontSize: "11px", fontWeight: "400", color: "#2d5070" }}>/ 100</span>
-            </p>
+            <p style={{ fontSize: "11px", color: "#2d5070", margin: "0 0 6px" }}>Score geral</p>
+            <p style={{ fontSize: "13px", fontWeight: "600", color: "#2d5070", margin: "0 0 2px" }}>Score indisponível</p>
+            <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Aguardando monitoramento real</p>
           </div>
         </div>
       </div>
