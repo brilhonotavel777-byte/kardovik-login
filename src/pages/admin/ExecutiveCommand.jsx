@@ -177,6 +177,10 @@ export default function ExecutiveCommand() {
     ...(stats.cancelamentos_mes > 0 ? [{ level: "info", text: `${stats.cancelamentos_mes} cancelamento${stats.cancelamentos_mes !== 1 ? "s" : ""} registrado${stats.cancelamentos_mes !== 1 ? "s" : ""} este mês.` }] : []),
   ] : [];
 
+  const hasRevenueData = MONTHS.some(m => m.v > 0);
+  const hasChannelData = CHANNELS.some(c => c.pct > 0);
+  const monthlyGoalTarget = 0;
+
   return (
     <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
 
@@ -212,7 +216,7 @@ export default function ExecutiveCommand() {
       </div>
 
       {/* Métricas financeiras — sem fonte ativa */}
-      <p style={{ fontSize: "9px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 10px" }}>
+      <p style={{ fontSize: "9px", fontWeight: "700", color: "#3d5a73", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 10px" }}>
         Financeiro — Sem fonte ativa
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "14px", marginBottom: "20px" }}>
@@ -248,8 +252,8 @@ export default function ExecutiveCommand() {
                 {brl(0)} <span style={{ fontSize: "13px", fontWeight: "400", color: "#3d5a73" }}>/ {new Date().toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}</span>
               </p>
             </div>
-            <span style={{ fontSize: "12px", fontWeight: "600", color: "#22c55e", background: "rgba(34,197,94,0.1)", padding: "3px 10px", borderRadius: "20px" }}>
-              0% MoM
+            <span style={{ fontSize: "12px", fontWeight: "600", color: hasRevenueData ? "#22c55e" : "#2d5070", background: hasRevenueData ? "rgba(34,197,94,0.1)" : "rgba(45,80,112,0.08)", padding: "3px 10px", borderRadius: "20px" }}>
+              {hasRevenueData ? "0% MoM" : "Aguardando dados"}
             </span>
           </div>
           <RevenueChart />
@@ -263,14 +267,22 @@ export default function ExecutiveCommand() {
             <p style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 14px" }}>
               Meta do Mês
             </p>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "10px" }}>
-              <span style={{ fontSize: "22px", fontWeight: "700", color: "#e8f0fd", letterSpacing: "-0.4px" }}>0%</span>
-              <span style={{ fontSize: "11px", color: "#3d5a73" }}>{brl(0)} alvo</span>
-            </div>
-            <ProgressBar pct={0} />
-            <p style={{ fontSize: "11px", color: "#2d5070", margin: "8px 0 0" }}>
-              Sem dados disponíveis
-            </p>
+            {monthlyGoalTarget === 0 ? (
+              <p style={{ fontSize: "12px", color: "#2d5070", margin: 0, lineHeight: 1.5 }}>
+                Sem meta configurada
+              </p>
+            ) : (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "10px" }}>
+                  <span style={{ fontSize: "22px", fontWeight: "700", color: "#e8f0fd", letterSpacing: "-0.4px" }}>0%</span>
+                  <span style={{ fontSize: "11px", color: "#3d5a73" }}>{brl(monthlyGoalTarget)} alvo</span>
+                </div>
+                <ProgressBar pct={0} />
+                <p style={{ fontSize: "11px", color: "#2d5070", margin: "8px 0 0" }}>
+                  Sem dados disponíveis
+                </p>
+              </>
+            )}
           </div>
 
           {/* Top channels */}
@@ -279,7 +291,7 @@ export default function ExecutiveCommand() {
               Top Canais
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {CHANNELS.map(({ name, pct, color }) => (
+              {hasChannelData ? CHANNELS.map(({ name, pct, color }) => (
                 <div key={name}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
                     <span style={{ fontSize: "12px", fontWeight: "500", color: "#8ba4c4" }}>{name}</span>
@@ -289,7 +301,9 @@ export default function ExecutiveCommand() {
                     <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: "2px" }} />
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Sem fonte de dados conectada</p>
+              )}
             </div>
           </div>
         </div>
