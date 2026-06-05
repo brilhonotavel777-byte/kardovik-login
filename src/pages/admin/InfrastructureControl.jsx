@@ -112,11 +112,14 @@ function TimelineItem({ time, icon, text, type }) {
 }
 
 function IntegrityBar({ label, pct, color }) {
+  const isEmpty = pct === 0;
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
         <span style={{ fontSize: "12px", color: "#6b8cac" }}>{label}</span>
-        <span style={{ fontSize: "12px", fontWeight: "700", color }}>{pct}%</span>
+        <span style={{ fontSize: "12px", fontWeight: "700", color: isEmpty ? "#1e3a55" : color }}>
+          {isEmpty ? "—" : `${pct}%`}
+        </span>
       </div>
       <div style={{ height: "4px", background: "#0e1e33", borderRadius: "2px", overflow: "hidden" }}>
         <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: "2px" }} />

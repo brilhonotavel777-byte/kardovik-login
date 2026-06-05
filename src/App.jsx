@@ -16,6 +16,7 @@ import ExecutiveCommand from "./pages/admin/ExecutiveCommand.jsx";
 import OperationsCenter from "./pages/admin/OperationsCenter.jsx";
 import InfrastructureControl from "./pages/admin/InfrastructureControl.jsx";
 import RecoveryOps from "./pages/admin/RecoveryOps.jsx";
+import EngagementCenter from "./pages/admin/EngagementCenter.jsx";
 
 export default function App() {
   const navigate = useNavigate();
@@ -287,6 +288,7 @@ export default function App() {
           <Route path="operations"     element={<OperationsCenter />} />
           <Route path="infrastructure" element={<InfrastructureControl />} />
           <Route path="recovery-ops"   element={<RecoveryOps />} />
+          <Route path="engagement"     element={<EngagementCenter />} />
         </Route>
       </Route>
 

@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 
 const METRICS = [
-  { label: "Incidentes Abertos",  value: "0", accent: "#ef4444" },
-  { label: "Falhas Críticas",     value: "0", accent: "#22c55e" },
-  { label: "Alertas Médios",      value: "0", accent: "#eab308" },
-  { label: "Erros Resolvidos",    value: "0", accent: "#22c55e" },
-  { label: "Clínicas Impactadas", value: "0", accent: "#eab308" },
+  { label: "Incidentes Abertos",  value: "—", accent: "#ef4444" },
+  { label: "Falhas Críticas",     value: "—", accent: "#22c55e" },
+  { label: "Alertas Médios",      value: "—", accent: "#eab308" },
+  { label: "Erros Resolvidos",    value: "—", accent: "#22c55e" },
+  { label: "Clínicas Impactadas", value: "—", accent: "#eab308" },
 ];
 
 const INCIDENTS = [];
@@ -27,9 +27,16 @@ function MetricCard({ label, value, accent }) {
       <p style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 8px" }}>
         {label}
       </p>
-      <p style={{ fontSize: "28px", fontWeight: "700", color: "#e8f0fd", margin: 0, letterSpacing: "-0.5px" }}>
+      <p style={{ fontSize: "28px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 8px", letterSpacing: "-0.5px" }}>
         {value}
       </p>
+      <span style={{
+        display: "inline-block", fontSize: "11px", fontWeight: "600",
+        color: "#2d5070", background: "rgba(45,80,112,0.08)",
+        padding: "2px 8px", borderRadius: "20px",
+      }}>
+        Aguardando dados
+      </span>
     </div>
   );
 }
@@ -92,13 +99,13 @@ export default function RecoveryOps() {
         </div>
         <div style={{
           display: "flex", alignItems: "center", gap: "7px", padding: "7px 14px",
-          background: openCount > 0 ? "rgba(234,179,8,0.08)" : "rgba(34,197,94,0.08)",
-          border: `1px solid ${openCount > 0 ? "rgba(234,179,8,0.2)" : "rgba(34,197,94,0.2)"}`,
+          background: openCount > 0 ? "rgba(234,179,8,0.08)" : INCIDENTS.length > 0 ? "rgba(34,197,94,0.08)" : "rgba(45,80,112,0.06)",
+          border: `1px solid ${openCount > 0 ? "rgba(234,179,8,0.2)" : INCIDENTS.length > 0 ? "rgba(34,197,94,0.2)" : "rgba(45,80,112,0.2)"}`,
           borderRadius: "20px",
         }}>
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: openCount > 0 ? "#eab308" : "#22c55e", display: "block" }} />
-          <span style={{ fontSize: "12px", fontWeight: "600", color: openCount > 0 ? "#eab308" : "#22c55e" }}>
-            {openCount > 0 ? `${openCount} incidente${openCount > 1 ? "s" : ""} ativo${openCount > 1 ? "s" : ""}` : "Nenhum incidente ativo"}
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: openCount > 0 ? "#eab308" : INCIDENTS.length > 0 ? "#22c55e" : "#2d5070", display: "block" }} />
+          <span style={{ fontSize: "12px", fontWeight: "600", color: openCount > 0 ? "#eab308" : INCIDENTS.length > 0 ? "#22c55e" : "#2d5070" }}>
+            {openCount > 0 ? `${openCount} incidente${openCount > 1 ? "s" : ""} ativo${openCount > 1 ? "s" : ""}` : INCIDENTS.length > 0 ? "Nenhum incidente ativo" : "Sem fonte de dados ativa"}
           </span>
         </div>
       </div>
@@ -118,13 +125,15 @@ export default function RecoveryOps() {
 
         {/* Incident table — scroll on mobile */}
         <div style={{ overflowX: "auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "80px 1.2fr 2fr 1fr 1.4fr", padding: "10px 24px", borderBottom: "1px solid #0a1624", minWidth: "560px" }}>
-            {["ID", "Serviço", "Impacto", "Severidade", "Status"].map(h => (
-              <span key={h} style={{ fontSize: "10px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                {h}
-              </span>
-            ))}
-          </div>
+          {INCIDENTS.length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "80px 1.2fr 2fr 1fr 1.4fr", padding: "10px 24px", borderBottom: "1px solid #0a1624", minWidth: "560px" }}>
+              {["ID", "Serviço", "Impacto", "Severidade", "Status"].map(h => (
+                <span key={h} style={{ fontSize: "10px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  {h}
+                </span>
+              ))}
+            </div>
+          )}
 
           {INCIDENTS.length === 0 ? (
             <div style={{ padding: "40px 24px", textAlign: "center" }}>
@@ -161,13 +170,15 @@ export default function RecoveryOps() {
           </p>
 
           <div style={{ overflowX: "auto" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "12px", minWidth: "440px" }}>
-              {["Erro", "Origem", "Impacto", "Próxima ação"].map(col => (
-                <span key={col} style={{ fontSize: "9px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                  {col}
-                </span>
-              ))}
-            </div>
+            {ERROR_MAP.length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "12px", minWidth: "440px" }}>
+                {["Erro", "Origem", "Impacto", "Próxima ação"].map(col => (
+                  <span key={col} style={{ fontSize: "9px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                    {col}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {ERROR_MAP.length === 0 ? (

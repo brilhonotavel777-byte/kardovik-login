@@ -6,6 +6,7 @@ const NAV = [
   { to: "/admin/operations",     label: "Central Operacional", dot: "#22c55e" },
   { to: "/admin/infrastructure", label: "Controle de Infraestrutura", dot: "#a855f7" },
   { to: "/admin/recovery-ops",   label: "Central de Recuperação",   dot: "#ef4444" },
+  { to: "/admin/engagement",     label: "Central de Engajamento",   dot: "#06b6d4" },
 ];
 
 const FONT = "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
