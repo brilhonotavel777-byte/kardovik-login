@@ -198,23 +198,32 @@ export default function OperationsCenter() {
                 {dataLoading ? "carregando..." : dataError ? "erro de conexão" : `${data.clinicas_ativas} ativas`}
               </span>
             </p>
-            <div style={{ display: "flex", gap: "8px" }}>
-              {["Todas", "Ativas", "Em risco"].map(f => (
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <span style={{
+                padding: "4px 10px", borderRadius: "6px", fontSize: "11px",
+                fontWeight: "600", color: "#60a5fa", background: "rgba(59,130,246,0.1)",
+                cursor: "default",
+              }}>
+                Todas
+              </span>
+              {["Ativas", "Em risco"].map(f => (
                 <span
                   key={f}
-                  title={f !== "Todas" ? "Filtro em desenvolvimento" : undefined}
+                  title="Filtro planejado — em breve"
                   style={{
-                    padding: "4px 10px",
-                    borderRadius: "6px",
-                    fontSize: "11px",
-                    fontWeight: "600",
-                    color: f === "Todas" ? "#60a5fa" : "#1e3a55",
-                    background: f === "Todas" ? "rgba(59,130,246,0.1)" : "transparent",
-                    cursor: f === "Todas" ? "pointer" : "default",
-                    opacity: f === "Todas" ? 1 : 0.45,
+                    display: "inline-flex", alignItems: "center", gap: "5px",
+                    padding: "4px 10px", borderRadius: "6px", fontSize: "11px",
+                    fontWeight: "500", color: "#1e3a55", cursor: "default",
                   }}
                 >
                   {f}
+                  <span style={{
+                    fontSize: "8px", fontWeight: "700", color: "#1e3a55",
+                    background: "rgba(45,80,112,0.06)", padding: "1px 5px",
+                    borderRadius: "4px", letterSpacing: "0.06em",
+                  }}>
+                    EM BREVE
+                  </span>
                 </span>
               ))}
             </div>
@@ -222,24 +231,26 @@ export default function OperationsCenter() {
 
           {/* Column headers + rows — scroll horizontal no mobile */}
           <div style={{ overflowX: "auto" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr",
-              padding: "10px 24px",
-              borderBottom: "1px solid #0a1624",
-              minWidth: "520px",
-            }}
-          >
-            {["Clínica", "Status", "Plano", "Último acesso", "Saúde"].map(h => (
-              <span
-                key={h}
-                style={{ fontSize: "10px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}
-              >
-                {h}
-              </span>
-            ))}
-          </div>
+          {clinics.length > 0 && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr",
+                padding: "10px 24px",
+                borderBottom: "1px solid #0a1624",
+                minWidth: "520px",
+              }}
+            >
+              {["Clínica", "Status", "Plano", "Último acesso", "Saúde"].map(h => (
+                <span
+                  key={h}
+                  style={{ fontSize: "10px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}
+                >
+                  {h}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Rows */}
           {dataLoading ? (
@@ -312,7 +323,10 @@ export default function OperationsCenter() {
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             {ACTIVITY.length === 0 ? (
-              <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Nenhuma atividade registrada</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Sem eventos monitorados ainda.</p>
+                <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Requer: activity_events</p>
+              </div>
             ) : ACTIVITY.map(({ time, event, type }, i) => (
               <div key={i} style={{ display: "flex", gap: "10px" }}>
                 <ActivityDot type={type} />
