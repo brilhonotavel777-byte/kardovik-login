@@ -87,7 +87,7 @@ function SectionLabel({ children }) {
     <p style={{
       fontSize: "9px",
       fontWeight: "700",
-      color: "#1e3a55",
+      color: "#2d5070",
       textTransform: "uppercase",
       letterSpacing: "0.14em",
       margin: "0 0 10px",
@@ -121,11 +121,11 @@ function EmptyBlock({ title, message, accent = "#2d5070", depends }) {
       {depends && (
         <p style={{
           fontSize: "10px",
-          color: "#1e3a55",
+          color: "#2d5070",
           margin: "10px 0 0",
           fontStyle: "italic",
         }}>
-          Fonte: {depends}
+          Requer: {depends}
         </p>
       )}
     </div>
@@ -140,7 +140,6 @@ function RoadmapRow({ etapa, nome, campo, status, color }) {
       alignItems: "flex-start",
       gap: "14px",
       padding: "12px 0",
-      borderBottom: "1px solid #09161f",
     }}>
       <span style={{
         fontSize: "9px",
@@ -160,11 +159,11 @@ function RoadmapRow({ etapa, nome, campo, status, color }) {
         <p style={{ fontSize: "12px", fontWeight: "600", color: isAtivo ? "#c8d8eb" : "#3d5a73", margin: 0 }}>
           {nome}
         </p>
-        <p style={{ fontSize: "10px", color: "#1e3a55", margin: "2px 0 0", fontFamily: "monospace" }}>
+        <p style={{ fontSize: "10px", color: "#2d5070", margin: "2px 0 0", fontFamily: "monospace" }}>
           {campo}
         </p>
       </div>
-      <span style={{ fontSize: "10px", color: "#1e3a55", flexShrink: 0 }}>{etapa}</span>
+      <span style={{ fontSize: "10px", color: "#2d5070", flexShrink: 0 }}>{etapa}</span>
     </div>
   );
 }
@@ -258,7 +257,7 @@ export default function EngagementCenter() {
         <p style={{ fontSize: "10px", fontWeight: "700", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 4px" }}>
           Mapa de Evolução da Telemetria
         </p>
-        <p style={{ fontSize: "11px", color: "#1e3a55", margin: "0 0 16px", lineHeight: 1.5 }}>
+        <p style={{ fontSize: "11px", color: "#2d5070", margin: "0 0 16px", lineHeight: 1.5 }}>
           Dependências técnicas necessárias para ativar cada módulo desta central.
         </p>
         {ROADMAP.map((r, i) => (
