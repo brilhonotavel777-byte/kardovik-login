@@ -110,6 +110,27 @@ export default function RecoveryOps() {
         </div>
       </div>
 
+      {/* Context banner — sem fonte de dados ativa */}
+      {INCIDENTS.length === 0 && (
+        <div style={{
+          display: "flex", alignItems: "flex-start", gap: "12px",
+          padding: "14px 18px", marginBottom: "20px",
+          background: "rgba(45,80,112,0.06)",
+          border: "1px solid rgba(45,80,112,0.14)",
+          borderRadius: "12px",
+        }}>
+          <span style={{ fontSize: "14px", flexShrink: 0, lineHeight: "20px", color: "#2d5070" }}>ℹ</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+            <p style={{ fontSize: "12px", fontWeight: "600", color: "#3d5a73", margin: 0 }}>
+              Sem fonte de dados de incidentes conectada.
+            </p>
+            <p style={{ fontSize: "11px", color: "#2d5070", margin: 0, lineHeight: 1.5 }}>
+              Os dados desta central serão exibidos quando uma fonte real de monitoramento for integrada.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Metrics */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px", marginBottom: "20px" }}>
         {METRICS.map(m => <MetricCard key={m.label} {...m} />)}
@@ -136,8 +157,9 @@ export default function RecoveryOps() {
           )}
 
           {INCIDENTS.length === 0 ? (
-            <div style={{ padding: "40px 24px", textAlign: "center" }}>
-              <p style={{ fontSize: "13px", color: "#2d5070", margin: 0 }}>Nenhum incidente registrado</p>
+            <div style={{ padding: "36px 24px", display: "flex", flexDirection: "column", gap: "6px", alignItems: "center", textAlign: "center" }}>
+              <p style={{ fontSize: "13px", color: "#2d5070", margin: 0 }}>Nenhum incidente monitorado ainda.</p>
+              <p style={{ fontSize: "11px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Requer: incidents ou fonte real de monitoramento.</p>
             </div>
           ) : INCIDENTS.map(({ id, service, impact, severity, status }, i) => (
             <div
@@ -182,7 +204,10 @@ export default function RecoveryOps() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {ERROR_MAP.length === 0 ? (
-                <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Nenhum erro registrado</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Nenhum erro mapeado ainda.</p>
+                  <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Requer: error_map ou fonte real de diagnóstico.</p>
+                </div>
               ) : ERROR_MAP.map(({ error, origin, impact, action, level }, i) => {
                 const borderColor = level === "medium" ? "rgba(234,179,8,0.2)" : "rgba(107,140,172,0.15)";
                 const bg = level === "medium" ? "rgba(234,179,8,0.04)" : "rgba(107,140,172,0.04)";
@@ -216,7 +241,10 @@ export default function RecoveryOps() {
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {PRIORITY.length === 0 ? (
-              <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Sem prioridades ativas</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Sem prioridades operacionais registradas.</p>
+                <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Requer: incidentes reais ou regras de severidade.</p>
+              </div>
             ) : PRIORITY.map(({ label, items, color }) => (
               <div key={label}>
                 <p style={{ fontSize: "10px", fontWeight: "700", color, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 7px" }}>
