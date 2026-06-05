@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { NavLink, Outlet, useOutletContext } from "react-router-dom";
 
 const NAV = [
-  { to: "/admin/executive",      label: "Executive Command", dot: "#3b82f6" },
-  { to: "/admin/operations",     label: "Operations Center", dot: "#22c55e" },
-  { to: "/admin/infrastructure", label: "Infrastructure",    dot: "#a855f7" },
-  { to: "/admin/recovery-ops",   label: "Recovery Ops",     dot: "#ef4444" },
+  { to: "/admin/executive",      label: "Comando Executivo",   dot: "#3b82f6" },
+  { to: "/admin/operations",     label: "Central Operacional", dot: "#22c55e" },
+  { to: "/admin/infrastructure", label: "Controle de Infraestrutura", dot: "#a855f7" },
+  { to: "/admin/recovery-ops",   label: "Central de Recuperação",   dot: "#ef4444" },
 ];
 
 const FONT = "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";

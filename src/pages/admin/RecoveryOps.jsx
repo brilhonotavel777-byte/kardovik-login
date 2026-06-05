@@ -84,7 +84,7 @@ export default function RecoveryOps() {
             Admin Console
           </p>
           <h1 style={{ fontSize: isMobile ? "22px" : "26px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 4px", letterSpacing: "-0.5px" }}>
-            Recovery Operations Center
+            Central de Recuperação
           </h1>
           <p style={{ fontSize: "13px", color: "#3d5a73", margin: 0 }}>
             Incidentes, falhas e ações corretivas da plataforma

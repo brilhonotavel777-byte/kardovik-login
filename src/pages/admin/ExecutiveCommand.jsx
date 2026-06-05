@@ -34,7 +34,7 @@ const CHANNELS = [
 
 // ── Sub-components ────────────────────────────────────────────
 
-function MetricCard({ label, value, trend, up }) {
+function MetricCard({ label, value, trend, up, neutral = false }) {
   return (
     <div
       style={{
@@ -55,13 +55,13 @@ function MetricCard({ label, value, trend, up }) {
           display: "inline-block",
           fontSize: "11px",
           fontWeight: "600",
-          color: up ? "#22c55e" : "#ef4444",
-          background: up ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
+          color: neutral ? "#2d5070" : up ? "#22c55e" : "#ef4444",
+          background: neutral ? "rgba(45,80,112,0.08)" : up ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
           padding: "2px 8px",
           borderRadius: "20px",
         }}
       >
-        {up ? "▲" : "▼"} {trend}
+        {neutral ? "Aguardando dados" : `${up ? "▲" : "▼"} ${trend}`}
       </span>
     </div>
   );
@@ -70,6 +70,15 @@ function MetricCard({ label, value, trend, up }) {
 function RevenueChart() {
   const max = Math.max(...MONTHS.map(m => m.v));
   const H = 88;
+
+  if (max === 0) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: `${H + 28}px` }}>
+        <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Aguardando dados de receita</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: "10px", height: `${H + 28}px` }}>
       {MONTHS.map(({ label, v }, i) => {
@@ -144,15 +153,16 @@ export default function ExecutiveCommand() {
     });
   }, []);
 
-  const METRICS = [
-    // Financeiro — sem fonte real ainda
-    { label: "Receita Hoje",       value: brl(0), trend: "+0%", up: true },
-    { label: "Receita Semana",     value: brl(0), trend: "+0%", up: true },
-    { label: "Receita Mês",        value: brl(0), trend: "+0%", up: true },
-    { label: "ARR Projetado",      value: brl(0), trend: "+0%", up: true },
-    { label: "Ticket Médio",       value: brl(0), trend: "+0%", up: true },
-    { label: "Receita Recuperada", value: brl(0), trend: "+0%", up: true },
-    // Operacional — fonte real: get_admin_stats()
+  const METRICS_FINANCEIROS = [
+    { label: "Receita Hoje",       value: brl(0), trend: "+0%", up: true, neutral: true },
+    { label: "Receita Semana",     value: brl(0), trend: "+0%", up: true, neutral: true },
+    { label: "Receita Mês",        value: brl(0), trend: "+0%", up: true, neutral: true },
+    { label: "ARR Projetado",      value: brl(0), trend: "+0%", up: true, neutral: true },
+    { label: "Ticket Médio",       value: brl(0), trend: "+0%", up: true, neutral: true },
+    { label: "Receita Recuperada", value: brl(0), trend: "+0%", up: true, neutral: true },
+  ];
+
+  const METRICS_OPERACIONAIS = [
     { label: "Clínicas Ativas",   value: stats ? String(stats.clinicas_ativas)     : "—", trend: "+0", up: true },
     { label: "Novas Vendas",      value: stats ? String(stats.novas_vendas_mes)    : "—", trend: "+0", up: true },
     { label: "Usuários Pagos",    value: stats ? String(stats.usuarios_pagos)      : "—", trend: "+0", up: true },
@@ -177,7 +187,7 @@ export default function ExecutiveCommand() {
             Admin Console
           </p>
           <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 4px", letterSpacing: "-0.5px" }}>
-            Executive Command Center
+            Comando Executivo
           </h1>
           <p style={{ fontSize: "13px", color: "#3d5a73", margin: 0 }}>
             Visão financeira e de crescimento em tempo real
@@ -201,18 +211,20 @@ export default function ExecutiveCommand() {
         </div>
       </div>
 
-      {/* Metrics grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
-          gap: "14px",
-          marginBottom: "20px",
-        }}
-      >
-        {METRICS.map(m => (
-          <MetricCard key={m.label} {...m} />
-        ))}
+      {/* Métricas financeiras — sem fonte ativa */}
+      <p style={{ fontSize: "9px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 10px" }}>
+        Financeiro — Sem fonte ativa
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "14px", marginBottom: "20px" }}>
+        {METRICS_FINANCEIROS.map(m => <MetricCard key={m.label} {...m} />)}
+      </div>
+
+      {/* Métricas operacionais — dados em tempo real */}
+      <p style={{ fontSize: "9px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 10px" }}>
+        Operacional — Dados em tempo real
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "14px", marginBottom: "20px" }}>
+        {METRICS_OPERACIONAIS.map(m => <MetricCard key={m.label} {...m} />)}
       </div>
 
       {/* Main layout: chart + sidebar */}

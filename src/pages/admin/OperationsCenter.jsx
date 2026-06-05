@@ -150,7 +150,7 @@ export default function OperationsCenter() {
           Admin Console
         </p>
         <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 4px", letterSpacing: "-0.5px" }}>
-          Operations Center
+          Central Operacional
         </h1>
         <p style={{ fontSize: "13px", color: "#3d5a73", margin: 0 }}>
           Clínicas, usuários e saúde operacional da plataforma
@@ -202,14 +202,16 @@ export default function OperationsCenter() {
               {["Todas", "Ativas", "Em risco"].map(f => (
                 <span
                   key={f}
+                  title={f !== "Todas" ? "Filtro em desenvolvimento" : undefined}
                   style={{
                     padding: "4px 10px",
                     borderRadius: "6px",
                     fontSize: "11px",
                     fontWeight: "600",
-                    color: f === "Todas" ? "#60a5fa" : "#2d5070",
+                    color: f === "Todas" ? "#60a5fa" : "#1e3a55",
                     background: f === "Todas" ? "rgba(59,130,246,0.1)" : "transparent",
-                    cursor: "pointer",
+                    cursor: f === "Todas" ? "pointer" : "default",
+                    opacity: f === "Todas" ? 1 : 0.45,
                   }}
                 >
                   {f}

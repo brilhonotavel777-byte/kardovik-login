@@ -12,21 +12,21 @@ const SERVICES = [
 ];
 
 const METRICS = [
-  { label: "Uptime Global",     value: "—",       accent: "#22c55e" },
-  { label: "Latência Média",    value: "—",       accent: "#3b82f6" },
-  { label: "Requisições Hoje",  value: "0",       accent: "#3b82f6" },
-  { label: "Falhas nas 24h",    value: "0",       accent: "#eab308" },
-  { label: "Custo IA Estimado", value: "R$ 0,00", accent: "#a855f7" },
+  { label: "Uptime Global",     value: "—", accent: "#22c55e" },
+  { label: "Latência Média",    value: "—", accent: "#3b82f6" },
+  { label: "Requisições Hoje",  value: "—", accent: "#3b82f6" },
+  { label: "Falhas nas 24h",    value: "—", accent: "#eab308" },
+  { label: "Custo IA Estimado", value: "—", accent: "#a855f7" },
 ];
 
 const TIMELINE = [];
 
 const INTEGRITY = [
-  { label: "Database",       pct: 0, color: "#2d5070" },
-  { label: "Auth Service",   pct: 0, color: "#2d5070" },
-  { label: "File Storage",   pct: 0, color: "#2d5070" },
-  { label: "Edge Functions", pct: 0, color: "#2d5070" },
-  { label: "Realtime",       pct: 0, color: "#2d5070" },
+  { label: "Banco de Dados",  pct: 0, color: "#2d5070" },
+  { label: "Autenticação",    pct: 0, color: "#2d5070" },
+  { label: "Armazenamento",   pct: 0, color: "#2d5070" },
+  { label: "Funções Edge",    pct: 0, color: "#2d5070" },
+  { label: "Tempo Real",      pct: 0, color: "#2d5070" },
 ];
 
 // ── Sub-components ────────────────────────────────────────────
@@ -148,7 +148,7 @@ export default function InfrastructureControl() {
             Admin Console
           </p>
           <h1 style={{ fontSize: isMobile ? "22px" : "26px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 4px", letterSpacing: "-0.5px" }}>
-            Infrastructure Control
+            Controle de Infraestrutura
           </h1>
           <p style={{ fontSize: "13px", color: "#3d5a73", margin: 0 }}>
             Status de serviços, latência e integridade do sistema
