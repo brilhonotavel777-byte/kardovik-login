@@ -111,10 +111,24 @@ function ActivityDot({ type }) {
 export default function OperationsCenter() {
   const isMobile = useIsMobile();
   const [data, setData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState(null);
   const [stats, setStats] = useState(null);
+  const [statsError, setStatsError] = useState(null);
 
-  useEffect(() => { fetchAdminOperations().then(setData); }, []);
-  useEffect(() => { fetchAdminStats().then(setStats); }, []);
+  useEffect(() => {
+    fetchAdminOperations().then(({ data: d, error: e }) => {
+      setData(d);
+      setDataError(e);
+      setDataLoading(false);
+    });
+  }, []);
+  useEffect(() => {
+    fetchAdminStats().then(({ data: d, error: e }) => {
+      setStats(d);
+      setStatsError(e);
+    });
+  }, []);
 
   const clinics = data?.clinicas ?? [];
 
@@ -180,7 +194,9 @@ export default function OperationsCenter() {
             }}
           >
             <p style={{ fontSize: "13px", fontWeight: "600", color: "#8ba4c4", margin: 0 }}>
-              Clínicas — <span style={{ color: "#e8f0fd" }}>{data ? `${data.clinicas_ativas} ativas` : "carregando..."}</span>
+              Clínicas — <span style={{ color: dataError ? "#ef4444" : "#e8f0fd" }}>
+                {dataLoading ? "carregando..." : dataError ? "erro de conexão" : `${data.clinicas_ativas} ativas`}
+              </span>
             </p>
             <div style={{ display: "flex", gap: "8px" }}>
               {["Todas", "Ativas", "Em risco"].map(f => (
@@ -224,9 +240,14 @@ export default function OperationsCenter() {
           </div>
 
           {/* Rows */}
-          {!data ? (
+          {dataLoading ? (
             <div style={{ padding: "32px 24px", textAlign: "center" }}>
               <p style={{ fontSize: "12px", color: "#1e3a55", margin: 0, letterSpacing: "0.04em" }}>Carregando clínicas...</p>
+            </div>
+          ) : dataError ? (
+            <div style={{ padding: "36px 24px", textAlign: "center", display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
+              <p style={{ fontSize: "13px", color: "#ef4444", margin: 0 }}>Erro ao carregar dados operacionais.</p>
+              <p style={{ fontSize: "11px", color: "#2d5070", margin: 0 }}>Verifique a conexão e tente recarregar a página.</p>
             </div>
           ) : clinics.length === 0 ? (
             <div style={{ padding: "40px 24px", textAlign: "center", display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>

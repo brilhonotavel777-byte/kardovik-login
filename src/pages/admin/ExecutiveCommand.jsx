@@ -133,9 +133,15 @@ function ProgressBar({ pct, color = "#3b82f6" }) {
 export default function ExecutiveCommand() {
   const isMobile = useIsMobile();
   const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(null);
 
   useEffect(() => {
-    fetchAdminStats().then(setStats);
+    fetchAdminStats().then(({ data, error }) => {
+      setStats(data);
+      setStatsError(error);
+      setStatsLoading(false);
+    });
   }, []);
 
   const METRICS = [
@@ -183,13 +189,15 @@ export default function ExecutiveCommand() {
             alignItems: "center",
             gap: "7px",
             padding: "7px 14px",
-            background: "rgba(34,197,94,0.08)",
-            border: "1px solid rgba(34,197,94,0.2)",
+            background: statsError ? "rgba(239,68,68,0.08)" : statsLoading ? "rgba(45,80,112,0.06)" : "rgba(34,197,94,0.08)",
+            border: `1px solid ${statsError ? "rgba(239,68,68,0.2)" : statsLoading ? "rgba(45,80,112,0.2)" : "rgba(34,197,94,0.2)"}`,
             borderRadius: "20px",
           }}
         >
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#22c55e", display: "block" }} />
-          <span style={{ fontSize: "12px", fontWeight: "600", color: "#22c55e" }}>Operacional</span>
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: statsError ? "#ef4444" : statsLoading ? "#2d5070" : "#22c55e", display: "block" }} />
+          <span style={{ fontSize: "12px", fontWeight: "600", color: statsError ? "#ef4444" : statsLoading ? "#2d5070" : "#22c55e" }}>
+            {statsError ? "Dados indisponíveis" : statsLoading ? "Carregando..." : "Operacional"}
+          </span>
         </div>
       </div>
 
@@ -282,8 +290,8 @@ export default function ExecutiveCommand() {
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {ALERTS.length === 0 ? (
-            <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>
-              {stats ? "Nenhum alerta no momento" : "Carregando..."}
+            <p style={{ fontSize: "12px", color: statsError ? "#ef4444" : "#2d5070", margin: 0 }}>
+              {statsError ? "Não foi possível carregar alertas." : statsLoading ? "Carregando..." : "Nenhum alerta no momento"}
             </p>
           ) : ALERTS.map(({ level, text }, i) => (
             <div

@@ -4,7 +4,7 @@ export async function fetchAdminOperations() {
   const { data, error } = await supabase.rpc("get_admin_operations");
   if (error) {
     console.error("[Kardovik Admin] fetchAdminOperations:", error.message);
-    return null;
+    return { data: null, error: error.message };
   }
-  return data;
+  return { data, error: null };
 }
