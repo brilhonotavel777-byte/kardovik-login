@@ -187,13 +187,18 @@ export default function EngagementCenter() {
   }, []);
 
   const live = !!metrics && !metricsError;
-  const badge = metricsLoading ? "Carregando..." : metricsError ? "Indisponível" : live ? "Tempo real" : "Aguardando dados";
+  const cardBadge = (val) =>
+    metricsLoading ? "Carregando..."      :
+    metricsError   ? "Indisponível"       :
+    val != null    ? "Tempo real"         :
+    live           ? "Aguardando histórico" : "Aguardando dados";
+  const cardLive = (val) => live && val != null;
 
   const cards = [
-    { label: "Clínicas Online Agora", accent: "#06b6d4", value: metrics?.clinicas_online != null ? String(metrics.clinicas_online) : "—", live, badge },
-    { label: "Usuários Online",        accent: "#3b82f6", value: metrics?.usuarios_online != null ? String(metrics.usuarios_online) : "—", live, badge },
-    { label: "Sessões Ativas",         accent: "#a855f7", value: metrics?.sessoes_ativas != null ? String(metrics.sessoes_ativas) : "—", live, badge },
-    { label: "Tempo Médio de Sessão",  accent: "#eab308", value: fmtTempo(metrics?.tempo_medio_sessao) ?? "—", live, badge },
+    { label: "Clínicas Online Agora", accent: "#06b6d4", value: metrics?.clinicas_online != null ? String(metrics.clinicas_online) : "—", live: cardLive(metrics?.clinicas_online), badge: cardBadge(metrics?.clinicas_online) },
+    { label: "Usuários Online",        accent: "#3b82f6", value: metrics?.usuarios_online != null ? String(metrics.usuarios_online) : "—", live: cardLive(metrics?.usuarios_online), badge: cardBadge(metrics?.usuarios_online) },
+    { label: "Sessões Ativas",         accent: "#a855f7", value: metrics?.sessoes_ativas != null ? String(metrics.sessoes_ativas) : "—", live: cardLive(metrics?.sessoes_ativas), badge: cardBadge(metrics?.sessoes_ativas) },
+    { label: "Tempo Médio de Sessão",  accent: "#eab308", value: fmtTempo(metrics?.tempo_medio_sessao) ?? "—", live: cardLive(metrics?.tempo_medio_sessao), badge: cardBadge(metrics?.tempo_medio_sessao) },
   ];
 
   return (
@@ -227,10 +232,32 @@ export default function EngagementCenter() {
       </div>
 
       {/* Indicadores de Presença */}
-      <SectionLabel>Indicadores de Presença — {metricsLoading ? "Carregando" : metricsError ? "Fonte indisponível" : live ? "Tempo real" : "Fonte pendente"}</SectionLabel>
+      <SectionLabel>Indicadores de Presença — {metricsLoading ? "Carregando" : metricsError ? "Fonte indisponível" : live ? "Telemetria conectada, aguardando campos de presença" : "Fonte pendente"}</SectionLabel>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px", marginBottom: "24px" }}>
         {cards.map(c => <MetricCard key={c.label} {...c} />)}
       </div>
+
+      {/* Resumo de telemetria disponível */}
+      {live && metrics && (
+        <div style={{
+          display: "flex", flexWrap: "wrap", gap: "20px",
+          padding: "10px 16px", marginBottom: "24px",
+          background: "rgba(34,197,94,0.04)",
+          border: "1px solid rgba(34,197,94,0.12)",
+          borderRadius: "10px",
+        }}>
+          {[
+            ["Eventos", metrics.totalEvents],
+            ["Intervenções humanas", metrics.humanInterventions],
+            ["Incidentes críticos", metrics.criticalIncidents],
+            ["Saúde do sistema", metrics.health],
+          ].map(([k, v]) => (
+            <span key={k} style={{ fontSize: "12px", color: "#6b8cac" }}>
+              {k}: <strong style={{ color: "#22c55e", fontWeight: "600" }}>{v != null ? v : "—"}</strong>
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Monitoramento Ativo */}
       <SectionLabel>Monitoramento Ativo</SectionLabel>
@@ -238,13 +265,13 @@ export default function EngagementCenter() {
         <EmptyBlock
           title="Atividade em Tempo Real"
           accent="#3b82f6"
-          message="Sem dados reais conectados ainda. Monitoramento em tempo real requer telemetria de sessões ativa."
+          message={live ? "Telemetria conectada. Aguardando histórico de sessões para ativar o monitoramento em tempo real." : "Sem dados reais conectados ainda. Monitoramento em tempo real requer telemetria de sessões ativa."}
           depends="session_logs — Etapa 2"
         />
         <EmptyBlock
           title="Ranking de Uso"
           accent="#22c55e"
-          message="Sem dados reais conectados ainda. Ranking será calculado quando houver histórico de sessões e atividade."
+          message={live ? "Telemetria conectada. Aguardando histórico suficiente para cálculo do ranking." : "Sem dados reais conectados ainda. Ranking será calculado quando houver histórico de sessões e atividade."}
           depends="activity_events + session_logs — Etapas 2 e 3"
         />
       </div>
@@ -255,13 +282,13 @@ export default function EngagementCenter() {
         <EmptyBlock
           title="Clínicas em Risco"
           accent="#ef4444"
-          message="Sem dados reais conectados ainda. Clínicas com queda de uso ou longo período sem acesso aparecerão aqui."
+          message={live ? "Telemetria conectada. Aguardando dados suficientes para identificar clínicas em queda de uso." : "Sem dados reais conectados ainda. Clínicas com queda de uso ou longo período sem acesso aparecerão aqui."}
           depends="session_logs + get_admin_operations() — Etapas 1 e 2"
         />
         <EmptyBlock
           title="Score de Engajamento"
           accent="#eab308"
-          message="Sem dados reais conectados ainda. Score calculado com base em frequência de acesso, sessões e atividade."
+          message={live ? "Telemetria conectada. Aguardando histórico para cálculo do score de engajamento." : "Sem dados reais conectados ainda. Score calculado com base em frequência de acesso, sessões e atividade."}
           depends="clinic_daily_stats — Etapa 4"
         />
       </div>
@@ -272,7 +299,7 @@ export default function EngagementCenter() {
         <EmptyBlock
           title="Alertas Inteligentes"
           accent="#f97316"
-          message="Sem dados reais conectados ainda. Alertas requerem histórico de sessões e thresholds configurados pelo operador."
+          message={live ? "Telemetria conectada. Aguardando histórico de sessões e configuração de thresholds." : "Sem dados reais conectados ainda. Alertas requerem histórico de sessões e thresholds configurados pelo operador."}
           depends="session_logs + thresholds — Etapas 2 e 3"
         />
       </div>
