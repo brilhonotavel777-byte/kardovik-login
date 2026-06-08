@@ -1,6 +1,7 @@
 // ── Central de Engajamento ────────────────────────────────────
 
 import { useState, useEffect } from "react";
+import { fetchPilotMetrics } from "../../lib/pilotMetrics.js";
 
 function useIsMobile() {
   const [v, setV] = useState(window.innerWidth < 768);
@@ -12,12 +13,13 @@ function useIsMobile() {
   return v;
 }
 
-const CARDS = [
-  { label: "Clínicas Online Agora", value: "—", accent: "#06b6d4" },
-  { label: "Usuários Online",        value: "—", accent: "#3b82f6" },
-  { label: "Sessões Ativas",         value: "—", accent: "#a855f7" },
-  { label: "Tempo Médio de Sessão",  value: "—", accent: "#eab308" },
-];
+function fmtTempo(min) {
+  if (min == null) return null;
+  if (min < 60) return `${Math.round(min)}min`;
+  const h = Math.floor(min / 60);
+  const m = Math.round(min % 60);
+  return m > 0 ? `${h}h ${m}min` : `${h}h`;
+}
 
 const ROADMAP = [
   {
@@ -52,7 +54,7 @@ const ROADMAP = [
 
 // ── Sub-components ────────────────────────────────────────────
 
-function MetricCard({ label, value, accent }) {
+function MetricCard({ label, value, accent, live = false, badge = "Aguardando dados reais" }) {
   return (
     <div style={{
       background: "#0c1a2e",
@@ -71,12 +73,12 @@ function MetricCard({ label, value, accent }) {
         display: "inline-block",
         fontSize: "11px",
         fontWeight: "600",
-        color: "#2d5070",
-        background: "rgba(45,80,112,0.08)",
+        color: live ? "#22c55e" : "#2d5070",
+        background: live ? "rgba(34,197,94,0.08)" : "rgba(45,80,112,0.08)",
         padding: "2px 8px",
         borderRadius: "20px",
       }}>
-        Aguardando dados reais
+        {badge}
       </span>
     </div>
   );
@@ -172,6 +174,27 @@ function RoadmapRow({ etapa, nome, campo, status, color }) {
 
 export default function EngagementCenter() {
   const isMobile = useIsMobile();
+  const [metrics, setMetrics] = useState(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
+  const [metricsError, setMetricsError] = useState(null);
+
+  useEffect(() => {
+    fetchPilotMetrics().then(({ data, error }) => {
+      setMetrics(data);
+      setMetricsError(error);
+      setMetricsLoading(false);
+    });
+  }, []);
+
+  const live = !!metrics && !metricsError;
+  const badge = metricsLoading ? "Carregando..." : metricsError ? "Indisponível" : live ? "Tempo real" : "Aguardando dados";
+
+  const cards = [
+    { label: "Clínicas Online Agora", accent: "#06b6d4", value: metrics?.clinicas_online != null ? String(metrics.clinicas_online) : "—", live, badge },
+    { label: "Usuários Online",        accent: "#3b82f6", value: metrics?.usuarios_online != null ? String(metrics.usuarios_online) : "—", live, badge },
+    { label: "Sessões Ativas",         accent: "#a855f7", value: metrics?.sessoes_ativas != null ? String(metrics.sessoes_ativas) : "—", live, badge },
+    { label: "Tempo Médio de Sessão",  accent: "#eab308", value: fmtTempo(metrics?.tempo_medio_sessao) ?? "—", live, badge },
+  ];
 
   return (
     <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
@@ -192,19 +215,21 @@ export default function EngagementCenter() {
         <div style={{
           display: "flex", alignItems: "center", gap: "7px",
           padding: "7px 14px",
-          background: "rgba(6,182,212,0.06)",
-          border: "1px solid rgba(6,182,212,0.18)",
+          background: metricsError ? "rgba(239,68,68,0.06)" : metricsLoading ? "rgba(45,80,112,0.06)" : live ? "rgba(34,197,94,0.08)" : "rgba(6,182,212,0.06)",
+          border: `1px solid ${metricsError ? "rgba(239,68,68,0.18)" : metricsLoading ? "rgba(45,80,112,0.2)" : live ? "rgba(34,197,94,0.2)" : "rgba(6,182,212,0.18)"}`,
           borderRadius: "20px",
         }}>
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#2d5070", display: "block" }} />
-          <span style={{ fontSize: "12px", fontWeight: "600", color: "#2d5070" }}>Telemetria não conectada</span>
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: metricsError ? "#ef4444" : metricsLoading ? "#2d5070" : live ? "#22c55e" : "#2d5070", display: "block" }} />
+          <span style={{ fontSize: "12px", fontWeight: "600", color: metricsError ? "#ef4444" : metricsLoading ? "#2d5070" : live ? "#22c55e" : "#2d5070" }}>
+            {metricsError ? "Dados indisponíveis" : metricsLoading ? "Carregando..." : live ? "Operacional" : "Telemetria não conectada"}
+          </span>
         </div>
       </div>
 
       {/* Indicadores de Presença */}
-      <SectionLabel>Indicadores de Presença — Fonte pendente</SectionLabel>
+      <SectionLabel>Indicadores de Presença — {metricsLoading ? "Carregando" : metricsError ? "Fonte indisponível" : live ? "Tempo real" : "Fonte pendente"}</SectionLabel>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px", marginBottom: "24px" }}>
-        {CARDS.map(c => <MetricCard key={c.label} {...c} />)}
+        {cards.map(c => <MetricCard key={c.label} {...c} />)}
       </div>
 
       {/* Monitoramento Ativo */}
