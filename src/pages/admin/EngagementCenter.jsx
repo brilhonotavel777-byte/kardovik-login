@@ -149,7 +149,7 @@ function RoadmapRow({ etapa, nome, campo, status, color }) {
         color,
         background: isAtivo ? "rgba(34,197,94,0.08)" : "rgba(45,80,112,0.06)",
         padding: "3px 8px",
-        borderRadius: "4px",
+        borderRadius: "20px",
         letterSpacing: "0.06em",
         textTransform: "uppercase",
         whiteSpace: "nowrap",
@@ -232,7 +232,7 @@ export default function EngagementCenter() {
       </div>
 
       {/* Indicadores de Presença */}
-      <SectionLabel>Indicadores de Presença — {metricsLoading ? "Carregando" : metricsError ? "Fonte indisponível" : live ? "Telemetria conectada, aguardando campos de presença" : "Fonte pendente"}</SectionLabel>
+      <SectionLabel>Indicadores de Presença — {metricsLoading ? "Carregando" : metricsError ? "Fonte indisponível" : live ? "Telemetria ativa" : "Fonte pendente"}</SectionLabel>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px", marginBottom: "24px" }}>
         {cards.map(c => <MetricCard key={c.label} {...c} />)}
       </div>
@@ -248,6 +248,7 @@ export default function EngagementCenter() {
         }}>
           {[
             ["Eventos", metrics.totalEvents],
+            ["Autonomia", metrics.interventionPct != null ? `${Math.round(100 - metrics.interventionPct)}%` : null],
             ["Intervenções humanas", metrics.humanInterventions],
             ["Incidentes críticos", metrics.criticalIncidents],
             ["Saúde do sistema", metrics.health],
