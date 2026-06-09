@@ -57,6 +57,13 @@ function StatusChip({ status }) {
   );
 }
 
+function incidentLabel(loading, count) {
+  if (loading)   return "carregando...";
+  if (count === 0) return "Nenhum incidente ativo";
+  if (count === 1) return "1 registrado";
+  return `${count} registrados`;
+}
+
 // ── Page ──────────────────────────────────────────────────────
 
 export default function RecoveryOps() {
@@ -248,9 +255,7 @@ export default function RecoveryOps() {
           <p style={{ fontSize: "13px", fontWeight: "600", color: "#8ba4c4", margin: 0 }}>
             Incidentes —{" "}
             <span style={{ color: "#e8f0fd" }}>
-              {pilotLoading
-                ? "carregando..."
-                : `${incidents.length} registrado${incidents.length !== 1 ? "s" : ""}`}
+              {incidentLabel(pilotLoading, incidents.length)}
             </span>
           </p>
         </div>
