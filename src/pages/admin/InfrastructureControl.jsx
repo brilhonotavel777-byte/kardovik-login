@@ -53,21 +53,21 @@ function ServiceCard({ name, status, uptime, latency }) {
       </div>
       <div style={{ display: "flex", gap: "12px" }}>
         <div>
-          <p style={{ fontSize: "9px", color: "#1e3a55", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>Uptime</p>
+          <p style={{ fontSize: "9px", color: "#2d5070", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>Uptime</p>
           <p style={{ fontSize: "13px", fontWeight: "700", color: isOk ? "#22c55e" : "#2d5070", margin: 0 }}>{uptime}</p>
         </div>
         <div>
-          <p style={{ fontSize: "9px", color: "#1e3a55", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>Latência</p>
+          <p style={{ fontSize: "9px", color: "#2d5070", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 2px" }}>Latência</p>
           <p style={{ fontSize: "13px", fontWeight: "700", color: isOk ? "#6b8cac" : "#2d5070", margin: 0 }}>{latency}</p>
         </div>
       </div>
       {!isOk && !isPending && (
-        <span style={{ fontSize: "10px", fontWeight: "600", color: "#eab308", background: "rgba(234,179,8,0.08)", padding: "2px 8px", borderRadius: "4px", display: "inline-block" }}>
+        <span style={{ fontSize: "10px", fontWeight: "600", color: "#eab308", background: "rgba(234,179,8,0.08)", padding: "2px 8px", borderRadius: "20px", display: "inline-block" }}>
           Desempenho degradado
         </span>
       )}
       {isPending && (
-        <span style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", background: "rgba(45,80,112,0.06)", padding: "2px 8px", borderRadius: "4px", display: "inline-block" }}>
+        <span style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", background: "rgba(45,80,112,0.06)", padding: "2px 8px", borderRadius: "20px", display: "inline-block" }}>
           Aguardando monitoramento
         </span>
       )}
@@ -105,7 +105,7 @@ function TimelineItem({ time, icon, text, type }) {
       </div>
       <div>
         <p style={{ fontSize: "12px", color: "#8ba4c4", margin: "0 0 2px", lineHeight: 1.5 }}>{text}</p>
-        <span style={{ fontSize: "10px", color: "#1e3a55", fontWeight: "600" }}>{time}</span>
+        <span style={{ fontSize: "10px", color: "#2d5070", fontWeight: "600" }}>{time}</span>
       </div>
     </div>
   );
@@ -140,6 +140,7 @@ export default function InfrastructureControl() {
 
   const allOk = SERVICES.every(s => s.status === "operational");
   const allPending = SERVICES.every(s => s.status === "pending");
+  const degradedCount = SERVICES.filter(s => s.status !== "operational" && s.status !== "pending").length;
 
   return (
     <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
@@ -166,7 +167,7 @@ export default function InfrastructureControl() {
         }}>
           <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: allPending ? "#2d5070" : allOk ? "#22c55e" : "#eab308", display: "block" }} />
           <span style={{ fontSize: "12px", fontWeight: "600", color: allPending ? "#2d5070" : allOk ? "#22c55e" : "#eab308" }}>
-            {allPending ? "Aguardando dados" : allOk ? "Todos os sistemas OK" : "1 serviço degradado"}
+            {allPending ? "Aguardando dados" : allOk ? "Todos os sistemas OK" : `${degradedCount} serviço${degradedCount !== 1 ? "s" : ""} degradado${degradedCount !== 1 ? "s" : ""}`}
           </span>
         </div>
       </div>
@@ -229,7 +230,7 @@ export default function InfrastructureControl() {
           <div style={{ marginTop: "20px", padding: "12px 14px", background: "#071020", borderRadius: "10px", border: "1px solid #0e1e30" }}>
             <p style={{ fontSize: "11px", color: "#2d5070", margin: "0 0 6px" }}>Score geral</p>
             <p style={{ fontSize: "13px", fontWeight: "600", color: "#2d5070", margin: "0 0 2px" }}>Score indisponível</p>
-            <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Aguardando monitoramento real</p>
+            <p style={{ fontSize: "10px", color: "#2d5070", margin: 0, fontStyle: "italic" }}>Aguardando monitoramento real</p>
           </div>
         </div>
       </div>
