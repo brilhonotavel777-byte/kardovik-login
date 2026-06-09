@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { fetchAdminOperations } from "../../lib/adminOperations.js";
 import { fetchAdminStats } from "../../lib/adminStats.js";
+import { fetchPilotMetrics } from "../../lib/pilotMetrics.js";
 
 function useIsMobile() {
   const [v, setV] = useState(window.innerWidth < 768);
@@ -23,8 +24,6 @@ function relativeTime(iso) {
   if (h < 24) return `${h}h atrás`;
   return `${d} dia${d !== 1 ? "s" : ""}`;
 }
-
-const ACTIVITY = [];
 
 // ── Sub-components ────────────────────────────────────────────
 
@@ -115,6 +114,8 @@ export default function OperationsCenter() {
   const [dataError, setDataError] = useState(null);
   const [stats, setStats] = useState(null);
   const [statsError, setStatsError] = useState(null);
+  const [pilot, setPilot] = useState(null);
+  const [pilotLoading, setPilotLoading] = useState(true);
 
   useEffect(() => {
     fetchAdminOperations().then(({ data: d, error: e }) => {
@@ -127,6 +128,12 @@ export default function OperationsCenter() {
     fetchAdminStats().then(({ data: d, error: e }) => {
       setStats(d);
       setStatsError(e);
+    });
+  }, []);
+  useEffect(() => {
+    fetchPilotMetrics().then(({ data }) => {
+      setPilot(data);
+      setPilotLoading(false);
     });
   }, []);
 
@@ -322,23 +329,91 @@ export default function OperationsCenter() {
             Atividade Recente
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            {ACTIVITY.length === 0 ? (
+            {pilotLoading ? (
+              <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Carregando...</p>
+            ) : !pilot || pilot.latestEvents.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Sem eventos monitorados ainda.</p>
-                <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Requer: activity_events</p>
+                <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Aguardando histórico operacional.</p>
+                <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Nenhum evento registrado ainda.</p>
               </div>
-            ) : ACTIVITY.map(({ time, event, type }, i) => (
-              <div key={i} style={{ display: "flex", gap: "10px" }}>
-                <ActivityDot type={type} />
-                <div>
-                  <p style={{ fontSize: "12px", color: "#8ba4c4", margin: "0 0 2px", lineHeight: 1.4 }}>
-                    {event}
-                  </p>
-                  <span style={{ fontSize: "10px", color: "#1e3a55", fontWeight: "500" }}>{time}</span>
+            ) : pilot.latestEvents.map((ev, i) => {
+              const dotType = ev.humanIntervention ? "warn" : ev.tags?.length > 0 ? "info" : "success";
+              return (
+                <div key={ev.id ?? i} style={{ display: "flex", gap: "10px" }}>
+                  <ActivityDot type={dotType} />
+                  <div>
+                    <p style={{ fontSize: "12px", color: "#8ba4c4", margin: "0 0 2px", lineHeight: 1.4 }}>
+                      <span style={{ fontWeight: "600", color: "#c8d8eb" }}>{ev.clinicId}</span>
+                      {" — "}{ev.replyType}
+                      {ev.humanIntervention && (
+                        <span style={{ marginLeft: "6px", fontSize: "10px", color: "#eab308" }}>• intervenção</span>
+                      )}
+                    </p>
+                    <span style={{ fontSize: "10px", color: "#1e3a55", fontWeight: "500" }}>{relativeTime(ev.ts)}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+        </div>
+      </div>
+
+      {/* Telemetria de Clínicas */}
+      <div style={{ marginTop: "20px", background: "#0c1a2e", border: "1px solid #152035", borderRadius: "16px", overflow: "hidden" }}>
+        <div style={{ padding: "18px 24px", borderBottom: "1px solid #0e1e30" }}>
+          <p style={{ fontSize: "13px", fontWeight: "600", color: "#8ba4c4", margin: 0 }}>
+            Telemetria de Clínicas
+            {pilot?.perClinic.length > 0 && (
+              <span style={{ color: "#e8f0fd" }}> — {pilot.perClinic.length} com atividade</span>
+            )}
+          </p>
+        </div>
+        <div style={{ overflowX: "auto" }}>
+          {pilotLoading ? (
+            <div style={{ padding: "24px", textAlign: "center" }}>
+              <p style={{ fontSize: "12px", color: "#1e3a55", margin: 0 }}>Carregando telemetria...</p>
+            </div>
+          ) : !pilot || pilot.perClinic.length === 0 ? (
+            <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", gap: "6px", alignItems: "center", textAlign: "center" }}>
+              <p style={{ fontSize: "13px", color: "#2d5070", margin: 0 }}>Aguardando histórico operacional.</p>
+              <p style={{ fontSize: "11px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Nenhuma clínica com atividade registrada ainda.</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1.4fr", padding: "10px 24px", borderBottom: "1px solid #0a1624", minWidth: "440px" }}>
+                {["Clínica", "Eventos", "Intervenções", "Última atividade"].map(h => (
+                  <span key={h} style={{ fontSize: "10px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                    {h}
+                  </span>
+                ))}
+              </div>
+              {pilot.perClinic.map((c, i) => (
+                <div
+                  key={c.clinicId}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "2fr 1fr 1fr 1.4fr",
+                    alignItems: "center",
+                    padding: "13px 24px",
+                    borderBottom: i < pilot.perClinic.length - 1 ? "1px solid #09161f" : "none",
+                    minWidth: "440px",
+                  }}
+                >
+                  <span style={{ fontSize: "13px", fontWeight: "600", color: "#c8d8eb" }}>{c.clinicId}</span>
+                  <span style={{ fontSize: "13px", color: "#8ba4c4" }}>{c.events}</span>
+                  <span style={{
+                    fontSize: "11px", fontWeight: "600",
+                    color: c.humanInterventions > 0 ? "#eab308" : "#22c55e",
+                    background: c.humanInterventions > 0 ? "rgba(234,179,8,0.08)" : "rgba(34,197,94,0.08)",
+                    padding: "2px 8px", borderRadius: "20px", display: "inline-block",
+                  }}>
+                    {c.humanInterventions}
+                  </span>
+                  <span style={{ fontSize: "12px", color: "#3d5a73" }}>{relativeTime(c.lastSeenAt)}</span>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </div>
 

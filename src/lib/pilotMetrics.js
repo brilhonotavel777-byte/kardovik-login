@@ -1,3 +1,18 @@
+function normalizePerClinic(raw) {
+  if (!raw || typeof raw !== "object") return [];
+  return Object.entries(raw)
+    .map(([clinicId, d]) => ({
+      clinicId,
+      events: d.events ?? 0,
+      humanInterventions: d.humanInterventions ?? 0,
+      criticalIncidents: d.criticalIncidents ?? 0,
+      topReplyTypes: d.topReplyTypes ?? [],
+      topTags: d.topTags ?? [],
+      lastSeenAt: d.lastSeenAt ?? null,
+    }))
+    .sort((a, b) => new Date(b.lastSeenAt ?? 0) - new Date(a.lastSeenAt ?? 0));
+}
+
 function normalizePilotMetrics(raw) {
   if (!raw?.ok) return null;
   return {
@@ -9,6 +24,8 @@ function normalizePilotMetrics(raw) {
     criticalIncidents: raw.totals?.criticalIncidents ?? null,
     tagFrequency: raw.tagFrequency ?? {},
     latestEvents: raw.latestEvents ?? [],
+    perClinic: normalizePerClinic(raw.perClinic),
+    perDay: raw.perDay ?? [],
     clinicas_online: raw.clinicas_online ?? null,
     usuarios_online: raw.usuarios_online ?? null,
     sessoes_ativas: raw.sessoes_ativas ?? null,
