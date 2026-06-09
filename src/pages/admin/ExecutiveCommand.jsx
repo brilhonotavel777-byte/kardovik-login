@@ -422,7 +422,7 @@ export default function ExecutiveCommand() {
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {ALERTS.length === 0 ? (
             <p style={{ fontSize: "12px", color: statsError ? "#ef4444" : "#2d5070", margin: 0 }}>
-              {statsError ? "Não foi possível carregar alertas." : statsLoading ? "Carregando..." : "Nenhum alerta no momento"}
+              {statsError ? "Não foi possível carregar alertas." : statsLoading ? "Carregando..." : "Sistema operando dentro dos parâmetros esperados"}
             </p>
           ) : ALERTS.map(({ level, text }, i) => (
             <div
