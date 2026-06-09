@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchAdminStats } from "../../lib/adminStats.js";
+import { fetchPilotMetrics } from "../../lib/pilotMetrics.js";
 
 function useIsMobile() {
   const [v, setV] = useState(window.innerWidth < 768);
@@ -55,13 +56,21 @@ function MetricCard({ label, value, trend, up, neutral = false }) {
           display: "inline-block",
           fontSize: "11px",
           fontWeight: "600",
-          color: neutral ? "#2d5070" : up ? "#22c55e" : "#ef4444",
-          background: neutral ? "rgba(45,80,112,0.08)" : up ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
+          color: neutral
+            ? "#2d5070"
+            : trend === "—"
+            ? "#2d5070"
+            : up ? "#22c55e" : "#ef4444",
+          background: neutral
+            ? "rgba(45,80,112,0.08)"
+            : trend === "—"
+            ? "rgba(45,80,112,0.08)"
+            : up ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
           padding: "2px 8px",
           borderRadius: "20px",
         }}
       >
-        {neutral ? "Aguardando dados" : `${up ? "▲" : "▼"} ${trend}`}
+        {neutral ? "Aguardando dados" : trend === "—" ? "—" : `${up ? "▲" : "▼"} ${trend}`}
       </span>
     </div>
   );
@@ -137,6 +146,63 @@ function ProgressBar({ pct, color = "#3b82f6" }) {
   );
 }
 
+function ActivityChart({ days, loading }) {
+  const H = 64;
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: `${H + 28}px` }}>
+        <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Carregando atividade...</p>
+      </div>
+    );
+  }
+  if (!days || days.length === 0) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: `${H + 28}px` }}>
+        <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Aguardando atividade de IA</p>
+      </div>
+    );
+  }
+
+  const max = Math.max(...days.map(d => d.events), 1);
+
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: "8px", height: `${H + 28}px` }}>
+      {days.map((d, i) => {
+        const barH = Math.max(3, Math.round((d.events / max) * H));
+        const isLast = i === days.length - 1;
+        const label = d.date
+          ? new Date(d.date + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+          : "—";
+        return (
+          <div key={d.date ?? i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+            <div style={{ position: "relative", width: "100%", height: `${H}px`, display: "flex", alignItems: "flex-end" }}>
+              {isLast && d.events > 0 && (
+                <span style={{
+                  position: "absolute", top: "-18px", left: "50%",
+                  transform: "translateX(-50%)", fontSize: "10px",
+                  fontWeight: "700", color: "#22c55e", whiteSpace: "nowrap",
+                }}>
+                  {d.events}
+                </span>
+              )}
+              <div style={{
+                width: "100%",
+                height: `${barH}px`,
+                background: isLast
+                  ? "linear-gradient(to top, #16a34a, #22c55e)"
+                  : "linear-gradient(to top, #0a2218, #0d2d20)",
+                borderRadius: "4px 4px 0 0",
+              }} />
+            </div>
+            <span style={{ fontSize: "9px", color: "#2d5070", fontWeight: "500", whiteSpace: "nowrap" }}>{label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────
 
 export default function ExecutiveCommand() {
@@ -144,12 +210,21 @@ export default function ExecutiveCommand() {
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(null);
+  const [pilot, setPilot] = useState(null);
+  const [pilotLoading, setPilotLoading] = useState(true);
 
   useEffect(() => {
     fetchAdminStats().then(({ data, error }) => {
       setStats(data);
       setStatsError(error);
       setStatsLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchPilotMetrics().then(({ data }) => {
+      setPilot(data);
+      setPilotLoading(false);
     });
   }, []);
 
@@ -162,14 +237,17 @@ export default function ExecutiveCommand() {
     { label: "Receita Recuperada", value: brl(0), trend: "+0%", up: true, neutral: true },
   ];
 
+  const clinicasInativas = stats ? stats.clinicas_total - stats.clinicas_ativas : null;
+
   const METRICS_OPERACIONAIS = [
-    { label: "Clínicas Ativas",   value: stats ? String(stats.clinicas_ativas)     : "—", trend: "+0", up: true },
-    { label: "Novas Vendas",      value: stats ? String(stats.novas_vendas_mes)    : "—", trend: "+0", up: true },
-    { label: "Usuários Pagos",    value: stats ? String(stats.usuarios_pagos)      : "—", trend: "+0", up: true },
-    { label: "Plano Anual",       value: stats ? String(stats.plano_anual)         : "—", trend: "+0", up: true },
-    { label: "Plano Mensal",      value: stats ? String(stats.plano_mensal)        : "—", trend: "+0", up: true },
-    { label: "Cancelamentos Mês", value: stats ? String(stats.cancelamentos_mes)   : "—", trend: "+0", up: stats ? stats.cancelamentos_mes === 0 : true },
-    { label: "Expirando (7d)",    value: stats ? String(stats.acesso_expirando_7d) : "—", trend: "+0", up: stats ? stats.acesso_expirando_7d === 0 : true },
+    { label: "Clínicas Ativas",   value: stats ? String(stats.clinicas_ativas)                                         : "—", trend: "—", up: true  },
+    { label: "Clínicas Inativas", value: clinicasInativas != null ? String(clinicasInativas)                            : "—", trend: "—", up: false },
+    { label: "Novas Vendas",      value: stats ? String(stats.novas_vendas_mes)                                        : "—", trend: "—", up: true  },
+    { label: "Usuários Pagos",    value: stats ? String(stats.usuarios_pagos)                                          : "—", trend: "—", up: true  },
+    { label: "Plano Anual",       value: stats ? String(stats.plano_anual)                                             : "—", trend: "—", up: true  },
+    { label: "Plano Mensal",      value: stats ? String(stats.plano_mensal)                                            : "—", trend: "—", up: true  },
+    { label: "Cancelamentos Mês", value: stats ? String(stats.cancelamentos_mes)                                       : "—", trend: "—", up: stats ? stats.cancelamentos_mes === 0 : true  },
+    { label: "Expirando (7d)",    value: stats ? String(stats.acesso_expirando_7d)                                     : "—", trend: "—", up: stats ? stats.acesso_expirando_7d === 0 : true },
   ];
 
   const ALERTS = stats ? [
@@ -180,6 +258,33 @@ export default function ExecutiveCommand() {
   const hasRevenueData = MONTHS.some(m => m.v > 0);
   const hasChannelData = CHANNELS.some(c => c.pct > 0);
   const monthlyGoalTarget = 0;
+
+  const autonomyPct = pilot?.interventionPct != null
+    ? Math.round(100 - pilot.interventionPct)
+    : null;
+
+  const AI_CARDS = [
+    {
+      label: "Eventos Processados",
+      value: pilot?.totalEvents != null ? String(pilot.totalEvents) : "—",
+      accent: "#22c55e",
+    },
+    {
+      label: "Taxa de Autonomia",
+      value: autonomyPct != null ? `${autonomyPct}%` : "—",
+      accent: "#3b82f6",
+    },
+    {
+      label: "Incidentes Críticos",
+      value: pilot?.criticalIncidents != null ? String(pilot.criticalIncidents) : "—",
+      accent: "#ef4444",
+    },
+    {
+      label: "Saúde da IA",
+      value: pilot?.health ?? "—",
+      accent: "#06b6d4",
+    },
+  ];
 
   return (
     <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
@@ -310,7 +415,7 @@ export default function ExecutiveCommand() {
       </div>
 
       {/* Executive alerts */}
-      <div style={{ background: "#0c1a2e", border: "1px solid #152035", borderRadius: "16px", padding: "22px 28px" }}>
+      <div style={{ background: "#0c1a2e", border: "1px solid #152035", borderRadius: "16px", padding: "22px 28px", marginBottom: "20px" }}>
         <p style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 16px" }}>
           Alertas Executivos
         </p>
@@ -339,6 +444,57 @@ export default function ExecutiveCommand() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Inteligência de IA */}
+      <div style={{ background: "#0c1a2e", border: "1px solid #152035", borderRadius: "16px", padding: "22px 28px" }}>
+
+        {/* Section header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", flexWrap: "wrap", gap: "10px" }}>
+          <p style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>
+            Inteligência de IA — Kardovik
+          </p>
+          <span style={{
+            fontSize: "11px",
+            fontWeight: "600",
+            color: pilotLoading ? "#2d5070" : !pilot ? "#2d5070" : "#22c55e",
+            background: pilotLoading ? "rgba(45,80,112,0.08)" : !pilot ? "rgba(45,80,112,0.08)" : "rgba(34,197,94,0.08)",
+            padding: "2px 10px",
+            borderRadius: "20px",
+          }}>
+            {pilotLoading ? "Carregando..." : !pilot ? "Sem dados" : `Sistema ${pilot.health}`}
+          </span>
+        </div>
+
+        {/* AI metric cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "12px", marginBottom: "22px" }}>
+          {AI_CARDS.map(({ label, value, accent }) => (
+            <div
+              key={label}
+              style={{
+                background: "#071020",
+                border: "1px solid #0e1e30",
+                borderRadius: "12px",
+                padding: "14px 16px",
+                borderTop: `2px solid ${accent}`,
+              }}
+            >
+              <p style={{ fontSize: "9px", fontWeight: "700", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 8px" }}>
+                {label}
+              </p>
+              <p style={{ fontSize: "20px", fontWeight: "700", color: pilotLoading ? "#1e3a55" : "#e8f0fd", margin: 0, letterSpacing: "-0.4px" }}>
+                {pilotLoading ? "—" : value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Activity chart */}
+        <p style={{ fontSize: "9px", fontWeight: "700", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 12px" }}>
+          Atividade Diária — IA Kardovik
+        </p>
+        <ActivityChart days={pilot?.perDay ?? []} loading={pilotLoading} />
+
       </div>
 
     </div>
