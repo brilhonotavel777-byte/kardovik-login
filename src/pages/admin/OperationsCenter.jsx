@@ -142,7 +142,7 @@ export default function OperationsCenter() {
   const METRICS = [
     { label: "Clínicas Ativas", value: data ? String(data.clinicas_ativas) : "—", accent: "#22c55e" },
     { label: "Em Onboarding",   value: data ? String(clinics.filter(c => c.display_status === "novo").length) : "—", accent: "#3b82f6" },
-    { label: "Usuários Ativos", value: data ? String(clinics.reduce((s, c) => s + c.total_usuarios, 0)) : "—", accent: "#22c55e" },
+    { label: "Total Usuários", value: data ? String(clinics.reduce((s, c) => s + c.total_usuarios, 0)) : "—", accent: "#22c55e" },
     { label: "Sem Uso (7d)",    value: data ? String(clinics.filter(c => c.display_status === "risco").length) : "—", accent: "#eab308" },
     { label: "Expirando (7d)", value: stats ? String(stats.acesso_expirando_7d) : "—", accent: "#eab308" },
     { label: "Cancelamentos",  value: stats ? String(stats.cancelamentos_mes)    : "—", accent: "#ef4444" },
@@ -152,16 +152,30 @@ export default function OperationsCenter() {
     <div style={{ padding: isMobile ? "16px 14px 32px" : "20px 22px 36px" }}>
 
       {/* Header */}
-      <div style={{ marginBottom: "32px" }}>
-        <p style={{ fontSize: "11px", fontWeight: "600", color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 6px" }}>
-          Admin Console
-        </p>
-        <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 4px", letterSpacing: "-0.5px" }}>
-          Central Operacional
-        </h1>
-        <p style={{ fontSize: "13px", color: "#3d5a73", margin: 0 }}>
-          Clínicas, usuários e saúde operacional da plataforma
-        </p>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px", flexWrap: "wrap", gap: "12px" }}>
+        <div>
+          <p style={{ fontSize: "11px", fontWeight: "600", color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.14em", margin: "0 0 6px" }}>
+            Admin Console
+          </p>
+          <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#e8f0fd", margin: "0 0 4px", letterSpacing: "-0.5px" }}>
+            Central Operacional
+          </h1>
+          <p style={{ fontSize: "13px", color: "#3d5a73", margin: 0 }}>
+            Clínicas, usuários e saúde operacional da plataforma
+          </p>
+        </div>
+        <div style={{
+          display: "flex", alignItems: "center", gap: "7px",
+          padding: "7px 14px",
+          background: dataError ? "rgba(239,68,68,0.08)" : dataLoading ? "rgba(45,80,112,0.06)" : "rgba(34,197,94,0.08)",
+          border: `1px solid ${dataError ? "rgba(239,68,68,0.2)" : dataLoading ? "rgba(45,80,112,0.2)" : "rgba(34,197,94,0.2)"}`,
+          borderRadius: "20px",
+        }}>
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: dataError ? "#ef4444" : dataLoading ? "#2d5070" : "#22c55e", display: "block" }} />
+          <span style={{ fontSize: "12px", fontWeight: "600", color: dataError ? "#ef4444" : dataLoading ? "#2d5070" : "#22c55e" }}>
+            {dataError ? "Erro de conexão" : dataLoading ? "Carregando..." : "Operacional"}
+          </span>
+        </div>
       </div>
 
       {/* Metrics */}
@@ -207,7 +221,7 @@ export default function OperationsCenter() {
             </p>
             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
               <span style={{
-                padding: "4px 10px", borderRadius: "6px", fontSize: "11px",
+                padding: "4px 10px", borderRadius: "20px", fontSize: "11px",
                 fontWeight: "600", color: "#60a5fa", background: "rgba(59,130,246,0.1)",
                 cursor: "default",
               }}>
@@ -219,15 +233,15 @@ export default function OperationsCenter() {
                   title="Filtro planejado — em breve"
                   style={{
                     display: "inline-flex", alignItems: "center", gap: "5px",
-                    padding: "4px 10px", borderRadius: "6px", fontSize: "11px",
-                    fontWeight: "500", color: "#1e3a55", cursor: "default",
+                    padding: "4px 10px", borderRadius: "20px", fontSize: "11px",
+                    fontWeight: "500", color: "#2d5070", cursor: "default",
                   }}
                 >
                   {f}
                   <span style={{
-                    fontSize: "8px", fontWeight: "700", color: "#1e3a55",
+                    fontSize: "8px", fontWeight: "700", color: "#2d5070",
                     background: "rgba(45,80,112,0.06)", padding: "1px 5px",
-                    borderRadius: "4px", letterSpacing: "0.06em",
+                    borderRadius: "20px", letterSpacing: "0.06em",
                   }}>
                     EM BREVE
                   </span>
@@ -251,7 +265,7 @@ export default function OperationsCenter() {
               {["Clínica", "Status", "Plano", "Último acesso", "Saúde"].map(h => (
                 <span
                   key={h}
-                  style={{ fontSize: "10px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}
+                  style={{ fontSize: "10px", fontWeight: "700", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.1em" }}
                 >
                   {h}
                 </span>
@@ -262,7 +276,7 @@ export default function OperationsCenter() {
           {/* Rows */}
           {dataLoading ? (
             <div style={{ padding: "32px 24px", textAlign: "center" }}>
-              <p style={{ fontSize: "12px", color: "#1e3a55", margin: 0, letterSpacing: "0.04em" }}>Carregando clínicas...</p>
+              <p style={{ fontSize: "12px", color: "#2d5070", margin: 0, letterSpacing: "0.04em" }}>Carregando clínicas...</p>
             </div>
           ) : dataError ? (
             <div style={{ padding: "36px 24px", textAlign: "center", display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
@@ -272,7 +286,7 @@ export default function OperationsCenter() {
           ) : clinics.length === 0 ? (
             <div style={{ padding: "40px 24px", textAlign: "center", display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
               <p style={{ fontSize: "13px", color: "#2d5070", margin: 0 }}>Nenhuma clínica cadastrada</p>
-              <p style={{ fontSize: "11px", color: "#1e3a55", margin: 0 }}>Os dados aparecerão aqui após o primeiro cadastro</p>
+              <p style={{ fontSize: "11px", color: "#2d5070", margin: 0 }}>Os dados aparecerão aqui após o primeiro cadastro</p>
             </div>
           ) : (
             clinics.map(({ id, nome, display_status, plano_dominante, ultimo_acesso_derivado, health_score_derivado }, i) => {
@@ -301,7 +315,7 @@ export default function OperationsCenter() {
                       color: isPremium ? "#60a5fa" : "#3d5a73",
                       background: isPremium ? "rgba(59,130,246,0.08)" : "rgba(61,90,115,0.1)",
                       padding: "2px 8px",
-                      borderRadius: "6px",
+                      borderRadius: "20px",
                       display: "inline-block",
                     }}
                   >
@@ -334,7 +348,7 @@ export default function OperationsCenter() {
             ) : !pilot || pilot.latestEvents.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Aguardando histórico operacional.</p>
-                <p style={{ fontSize: "10px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Nenhum evento registrado ainda.</p>
+                <p style={{ fontSize: "10px", color: "#2d5070", margin: 0, fontStyle: "italic" }}>Nenhum evento registrado ainda.</p>
               </div>
             ) : pilot.latestEvents.map((ev, i) => {
               const dotType = ev.humanIntervention ? "warn" : ev.tags?.length > 0 ? "info" : "success";
@@ -349,7 +363,7 @@ export default function OperationsCenter() {
                         <span style={{ marginLeft: "6px", fontSize: "10px", color: "#eab308" }}>• intervenção</span>
                       )}
                     </p>
-                    <span style={{ fontSize: "10px", color: "#1e3a55", fontWeight: "500" }}>{relativeTime(ev.ts)}</span>
+                    <span style={{ fontSize: "10px", color: "#2d5070", fontWeight: "500" }}>{relativeTime(ev.ts)}</span>
                   </div>
                 </div>
               );
@@ -371,18 +385,18 @@ export default function OperationsCenter() {
         <div style={{ overflowX: "auto" }}>
           {pilotLoading ? (
             <div style={{ padding: "24px", textAlign: "center" }}>
-              <p style={{ fontSize: "12px", color: "#1e3a55", margin: 0 }}>Carregando telemetria...</p>
+              <p style={{ fontSize: "12px", color: "#2d5070", margin: 0 }}>Carregando telemetria...</p>
             </div>
           ) : !pilot || pilot.perClinic.length === 0 ? (
             <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", gap: "6px", alignItems: "center", textAlign: "center" }}>
               <p style={{ fontSize: "13px", color: "#2d5070", margin: 0 }}>Aguardando histórico operacional.</p>
-              <p style={{ fontSize: "11px", color: "#1e3a55", margin: 0, fontStyle: "italic" }}>Nenhuma clínica com atividade registrada ainda.</p>
+              <p style={{ fontSize: "11px", color: "#2d5070", margin: 0, fontStyle: "italic" }}>Nenhuma clínica com atividade registrada ainda.</p>
             </div>
           ) : (
             <>
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1.4fr", padding: "10px 24px", borderBottom: "1px solid #0a1624", minWidth: "440px" }}>
-                {["Clínica", "Eventos", "Intervenções", "Última atividade"].map(h => (
-                  <span key={h} style={{ fontSize: "10px", fontWeight: "700", color: "#1e3a55", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr", padding: "10px 24px", borderBottom: "1px solid #0a1624", minWidth: "520px" }}>
+                {["Clínica", "Eventos", "Intervenções", "Críticos", "Última atividade"].map(h => (
+                  <span key={h} style={{ fontSize: "10px", fontWeight: "700", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.1em" }}>
                     {h}
                   </span>
                 ))}
@@ -392,11 +406,11 @@ export default function OperationsCenter() {
                   key={c.clinicId}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "2fr 1fr 1fr 1.4fr",
+                    gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr",
                     alignItems: "center",
                     padding: "13px 24px",
                     borderBottom: i < pilot.perClinic.length - 1 ? "1px solid #09161f" : "none",
-                    minWidth: "440px",
+                    minWidth: "520px",
                   }}
                 >
                   <span style={{ fontSize: "13px", fontWeight: "600", color: "#c8d8eb" }}>{c.clinicId}</span>
@@ -408,6 +422,15 @@ export default function OperationsCenter() {
                     padding: "2px 8px", borderRadius: "20px", display: "inline-block",
                   }}>
                     {c.humanInterventions}
+                  </span>
+                  <span style={{
+                    fontSize: "11px", fontWeight: "600",
+                    color: c.criticalIncidents > 0 ? "#ef4444" : "#2d5070",
+                    background: c.criticalIncidents > 0 ? "rgba(239,68,68,0.08)" : "transparent",
+                    padding: c.criticalIncidents > 0 ? "2px 8px" : "0",
+                    borderRadius: "20px", display: "inline-block",
+                  }}>
+                    {c.criticalIncidents}
                   </span>
                   <span style={{ fontSize: "12px", color: "#3d5a73" }}>{relativeTime(c.lastSeenAt)}</span>
                 </div>
