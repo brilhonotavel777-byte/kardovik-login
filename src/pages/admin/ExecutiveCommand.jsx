@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { fetchAdminStats } from "../../lib/adminStats.js";
 import { fetchPilotMetrics } from "../../lib/pilotMetrics.js";
+import { fetchExecutiveMetrics, EXECUTIVE_METRICS_UNAVAILABLE } from "../../lib/executiveMetrics.js";
 
 function useIsMobile() {
   const [v, setV] = useState(window.innerWidth < 768);
@@ -17,21 +18,8 @@ function useIsMobile() {
 const brl = (n) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n ?? 0);
 
-const MONTHS = [
-  { label: "Dez", v: 0 },
-  { label: "Jan", v: 0 },
-  { label: "Fev", v: 0 },
-  { label: "Mar", v: 0 },
-  { label: "Abr", v: 0 },
-  { label: "Mai", v: 0 },
-];
-
-const CHANNELS = [
-  { name: "Meta Ads",   pct: 0, color: "#3b82f6" },
-  { name: "TikTok",     pct: 0, color: "#a855f7" },
-  { name: "Instagram",  pct: 0, color: "#ec4899" },
-  { name: "Orgânico",   pct: 0, color: "#22c55e" },
-];
+// MONTHS e CHANNELS foram movidos para src/lib/executiveMetrics.js
+// como revenue_months e channels dentro de EXECUTIVE_METRICS_UNAVAILABLE.
 
 // ── Sub-components ────────────────────────────────────────────
 
@@ -76,8 +64,8 @@ function MetricCard({ label, value, trend, up, neutral = false }) {
   );
 }
 
-function RevenueChart() {
-  const max = Math.max(...MONTHS.map(m => m.v));
+function RevenueChart({ months }) {
+  const max = Math.max(...months.map(m => m.v));
   const H = 88;
 
   if (max === 0) {
@@ -90,7 +78,7 @@ function RevenueChart() {
 
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: "10px", height: `${H + 28}px` }}>
-      {MONTHS.map(({ label, v }, i) => {
+      {months.map(({ label, v }, i) => {
         const isLast = i === MONTHS.length - 1;
         const barH = Math.round((v / max) * H);
         return (
@@ -119,7 +107,7 @@ function RevenueChart() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {brl(MONTHS[MONTHS.length - 1].v)}
+                  {brl(months[months.length - 1].v)}
                 </span>
               )}
             </div>
@@ -212,6 +200,15 @@ export default function ExecutiveCommand() {
   const [statsError, setStatsError] = useState(null);
   const [pilot, setPilot] = useState(null);
   const [pilotLoading, setPilotLoading] = useState(true);
+  const [financial, setFinancial] = useState(EXECUTIVE_METRICS_UNAVAILABLE);
+  const [financialLoading, setFinancialLoading] = useState(true);
+
+  useEffect(() => {
+    fetchExecutiveMetrics().then(({ data }) => {
+      setFinancial(data ?? EXECUTIVE_METRICS_UNAVAILABLE);
+      setFinancialLoading(false);
+    });
+  }, []);
 
   useEffect(() => {
     fetchAdminStats().then(({ data, error }) => {
@@ -229,12 +226,12 @@ export default function ExecutiveCommand() {
   }, []);
 
   const METRICS_FINANCEIROS = [
-    { label: "Receita Hoje",       value: brl(0), trend: "+0%", up: true, neutral: true },
-    { label: "Receita Semana",     value: brl(0), trend: "+0%", up: true, neutral: true },
-    { label: "Receita Mês",        value: brl(0), trend: "+0%", up: true, neutral: true },
-    { label: "ARR Projetado",      value: brl(0), trend: "+0%", up: true, neutral: true },
-    { label: "Ticket Médio",       value: brl(0), trend: "+0%", up: true, neutral: true },
-    { label: "Receita Recuperada", value: brl(0), trend: "+0%", up: true, neutral: true },
+    { label: "Receita Hoje",       value: financial.revenue_today      != null ? brl(financial.revenue_today)      : brl(0), trend: "—", up: true, neutral: true },
+    { label: "Receita Semana",     value: financial.revenue_week       != null ? brl(financial.revenue_week)       : brl(0), trend: "—", up: true, neutral: true },
+    { label: "Receita Mês",        value: financial.revenue_month      != null ? brl(financial.revenue_month)      : brl(0), trend: "—", up: true, neutral: true },
+    { label: "ARR Projetado",      value: financial.arr                != null ? brl(financial.arr)                : brl(0), trend: "—", up: true, neutral: true },
+    { label: "Ticket Médio",       value: financial.ticket_count       != null ? brl(financial.ticket_count)       : brl(0), trend: "—", up: true, neutral: true },
+    { label: "Receita Recuperada", value: financial.recovered_revenue  != null ? brl(financial.recovered_revenue)  : brl(0), trend: "—", up: true, neutral: true },
   ];
 
   const clinicasInativas = stats ? stats.clinicas_total - stats.clinicas_ativas : null;
@@ -255,9 +252,11 @@ export default function ExecutiveCommand() {
     ...(stats.cancelamentos_mes > 0 ? [{ level: "info", text: `${stats.cancelamentos_mes} cancelamento${stats.cancelamentos_mes !== 1 ? "s" : ""} registrado${stats.cancelamentos_mes !== 1 ? "s" : ""} este mês.` }] : []),
   ] : [];
 
-  const hasRevenueData = MONTHS.some(m => m.v > 0);
-  const hasChannelData = CHANNELS.some(c => c.pct > 0);
-  const monthlyGoalTarget = 0;
+  const revenueMonths    = financial.revenue_months ?? EXECUTIVE_METRICS_UNAVAILABLE.revenue_months;
+  const channels         = financial.channels       ?? EXECUTIVE_METRICS_UNAVAILABLE.channels;
+  const monthlyGoalTarget = financial.monthly_goal_target ?? 0;
+  const hasRevenueData   = revenueMonths.some(m => m.v > 0);
+  const hasChannelData   = channels.some(c => c.pct > 0);
 
   const autonomyPct = pilot?.interventionPct != null
     ? Math.round(100 - pilot.interventionPct)
@@ -361,7 +360,7 @@ export default function ExecutiveCommand() {
               {hasRevenueData ? "0% MoM" : "Aguardando dados"}
             </span>
           </div>
-          <RevenueChart />
+          <RevenueChart months={revenueMonths} />
         </div>
 
         {/* Right column */}
@@ -396,7 +395,7 @@ export default function ExecutiveCommand() {
               Top Canais
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {hasChannelData ? CHANNELS.map(({ name, pct, color }) => (
+              {hasChannelData ? channels.map(({ name, pct, color }) => (
                 <div key={name}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
                     <span style={{ fontSize: "12px", fontWeight: "500", color: "#8ba4c4" }}>{name}</span>
