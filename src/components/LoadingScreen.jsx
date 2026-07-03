@@ -47,7 +47,7 @@ export default function LoadingScreen() {
           color: "#2563eb",
         }}
       >
-        Kardovik
+        Kisten Decision
       </div>
 
       <div

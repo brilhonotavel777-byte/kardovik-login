@@ -156,7 +156,7 @@ export default function ProtectedShell({ profile, session, clinic, onLogout }) {
           >
             <div>
               <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#0f172a", margin: "0 0 4px 0" }}>
-                Kardovik
+                Kisten Decision
               </h1>
               <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
                 Insira a conversa do cliente para gerar a resposta ideal
@@ -272,7 +272,7 @@ export default function ProtectedShell({ profile, session, clinic, onLogout }) {
             </div>
 
             <p style={{ fontSize: "12px", color: "#cbd5e1", textAlign: "center", margin: "32px 0 0 0" }}>
-              Kardovik • Seus dados protegidos • Ambiente seguro
+              Kisten Decision • Seus dados protegidos • Ambiente seguro
             </p>
           </>
         )}

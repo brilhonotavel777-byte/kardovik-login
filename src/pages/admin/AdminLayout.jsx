@@ -64,7 +64,7 @@ export default function AdminLayout() {
             boxShadow: "0 4px 12px rgba(59,130,246,0.3)",
           }}>K</div>
           <div>
-            <p style={{ color: "#e8f0fd", fontSize: "14px", fontWeight: "700", margin: 0, letterSpacing: "-0.3px" }}>Kardovik</p>
+            <p style={{ color: "#e8f0fd", fontSize: "14px", fontWeight: "700", margin: 0, letterSpacing: "-0.3px" }}>Kisten Decision</p>
             <p style={{ color: "#1d4ed8", fontSize: "9px", fontWeight: "700", margin: 0, textTransform: "uppercase", letterSpacing: "0.14em" }}>Admin Console</p>
           </div>
         </div>
@@ -159,7 +159,7 @@ export default function AdminLayout() {
               borderRadius: "7px", display: "flex", alignItems: "center",
               justifyContent: "center", fontSize: "12px", fontWeight: "800", color: "#fff",
             }}>K</div>
-            <span style={{ color: "#e8f0fd", fontSize: "13px", fontWeight: "700", letterSpacing: "-0.3px" }}>Kardovik</span>
+            <span style={{ color: "#e8f0fd", fontSize: "13px", fontWeight: "700", letterSpacing: "-0.3px" }}>Kisten Decision</span>
             <span style={{ color: "#1d4ed8", fontSize: "8px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.12em" }}>Admin</span>
           </div>
         </div>

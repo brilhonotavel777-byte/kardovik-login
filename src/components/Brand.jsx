@@ -18,7 +18,7 @@ export default function Brand({ size = "md", style }) {
         ...style,
       }}
     >
-      Kardovik
+      Kisten Decision
     </span>
   );
 }

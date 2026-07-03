@@ -214,7 +214,7 @@ export default function EngagementCenter() {
             Central de Engajamento
           </h1>
           <p style={{ fontSize: "13px", color: "#3d5a73", margin: 0 }}>
-            Monitoramento estratégico de uso, presença e risco das clínicas no Kardovik.
+            Monitoramento estratégico de uso, presença e risco das clínicas no Kisten Decision.
           </p>
         </div>
         <div style={{

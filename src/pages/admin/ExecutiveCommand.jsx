@@ -451,7 +451,7 @@ export default function ExecutiveCommand() {
         {/* Section header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", flexWrap: "wrap", gap: "10px" }}>
           <p style={{ fontSize: "10px", fontWeight: "600", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>
-            Inteligência de IA — Kardovik
+            Inteligência de IA — Kisten Decision
           </p>
           <span style={{
             fontSize: "11px",
@@ -490,7 +490,7 @@ export default function ExecutiveCommand() {
 
         {/* Activity chart */}
         <p style={{ fontSize: "9px", fontWeight: "700", color: "#2d5070", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 12px" }}>
-          Atividade Diária — IA Kardovik
+          Atividade Diária — IA Kisten Decision
         </p>
         <ActivityChart days={pilot?.perDay ?? []} loading={pilotLoading} />
 

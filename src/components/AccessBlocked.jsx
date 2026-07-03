@@ -44,7 +44,7 @@ const BLOCK_COPY = {
   expired: {
     title: "Seu acesso expirou",
     message:
-      "O período de acesso da sua conta terminou. Para continuar utilizando o Kardovik, será necessário renovar ou reativar o acesso.",
+      "O período de acesso da sua conta terminou. Para continuar utilizando o Kisten Decision, será necessário renovar ou reativar o acesso.",
   },
   unknown: {
     title: "Acesso indisponível",
